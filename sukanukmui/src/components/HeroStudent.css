@@ -1,0 +1,33 @@
+/* HeroStudent.css */
+.hero-student {
+    text-align: left;
+    padding: 4rem 2rem;
+    margin-top: 2rem;
+}
+
+.hero-student h1 {
+    font-size: 3.5rem;  /* Same as admin size */
+    font-weight: 900;
+    margin: 0;
+    color: #000;
+    letter-spacing: 1px;
+    line-height: 1.2;
+}
+
+.hero-student h2 {
+    font-size: 1.8rem;  /* Same as admin size */
+    color: #333;
+    margin-top: 0.5rem;
+    font-weight: 400;
+}
+
+/* Optional: Add responsive breakpoints for smaller screens */
+@media screen and (max-width: 768px) {
+    .hero-student h1 {
+        font-size: 2.5rem;
+    }
+    
+    .hero-student h2 {
+        font-size: 1.4rem;
+    }
+}

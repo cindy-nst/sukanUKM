@@ -1,0 +1,41 @@
+/* HomePage.css */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  /* Button Reset */
+  button {
+    outline: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  button:focus {
+    outline: none;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .hero {
+      padding: 50px 15px;
+    }
+  
+    .carousel {
+      flex-direction: column;
+      gap: 20px;
+    }
+  
+    .carousel-card {
+      width: 100%;
+    }
+  }
+  

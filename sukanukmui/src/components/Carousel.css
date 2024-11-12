@@ -1,0 +1,71 @@
+/* Carousel.css */
+.carousel {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 50px;
+    padding: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .carousel-card {
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 280px;
+    transition: transform 0.4s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .carousel-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
+  
+  .carousel-card img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .carousel-card img:hover {
+    transform: scale(1.05);
+  }
+  
+  .carousel-card h3 {
+    padding: 15px;
+    background-color: #f7f9fc;
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    border-top: 1px solid #e0e4e8;
+  }
+  
+  .carousel-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
+  
+  .carousel-controls button {
+    background-color: #4f9bff;
+    border: none;
+    color: #ffffff;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin: 0 10px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .carousel-controls button:hover {
+    background-color: #6c63ff;
+  }
+  
