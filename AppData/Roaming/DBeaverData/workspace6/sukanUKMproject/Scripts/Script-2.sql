@@ -1,0 +1,1 @@
+select load_file('C:/Users/singt/AppData/Roaming/DBeaverData/workspace6/sukanUKMproject/images/staff1.jpeg') 
