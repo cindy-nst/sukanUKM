@@ -1,1 +1,0 @@
-SELECT 'am comei';
