@@ -29,7 +29,7 @@ const Navbar = () => {
       </div>
 
       <div className="menu-items">
-        <Link to="/explore">Explore</Link>
+        <Link to="/home">Explore</Link>
         <Link to="/venues">Venues</Link>
         <Link to="/equipments">Equipments</Link>
         <Link to="/report">Report</Link>
@@ -60,16 +60,11 @@ const Navbar = () => {
           >
             {user?.username || 'S01001'} {/* Show actual username if available */}
           </button>
-          {isProfileOpen && (
-            <div className="dropdown-menu">
-              <Link to="/profile">Profile</Link>
-              <button 
-                onClick={handleLogout} 
-                className="logout-btn"
-              >
-                Logout
-              </button>
-            </div>
+              {isProfileOpen && (
+                <div className="dropdown-menu">
+                <Link to="/profile" onClick={() => setIsProfileOpen(false)}>Profile</Link>
+                <button onClick={handleLogout} className="logout-btn">Logout</button>
+          </div>
           )}
         </div>
       </div>

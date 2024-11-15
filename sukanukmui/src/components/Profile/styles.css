@@ -1,0 +1,89 @@
+/* Main Container */
+.venues-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    min-height: 100svh;
+}
+
+/* Main Content */
+.main-content {
+    position: absolute;
+    width: 900px; /* Reduced width */
+    height: 600px; /* Reduced height */
+    top: 100px;
+    bottom: 100px;
+    left: calc(50% - 900px / 2); /* Update with new width */
+    background: #F5F5F5;
+    box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.25);
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Profile Card */
+.profile-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Profile Image */
+.profile-image {
+    width: 261px;
+    height: 280px;
+    background-size: cover;
+    border-radius: 12px;
+    margin: 0 auto;
+}
+
+/* Profile Name */
+.profile-name {
+    font-family: 'Tahoma';
+    font-size: 30px;
+    color: #000000;
+    text-align: center;
+}
+
+/* Profile ID */
+.profile-id {
+    font-family: 'Tahoma';
+    font-size: 24px;
+    color: #7e7c85;
+    text-align: center;
+    margin-top: 5%;
+}
+
+/* Contact Info */
+.contact-info {
+    font-family: 'Tahoma';
+    font-size: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.contact-item {
+    font-family: 'Tahoma';
+    font-size: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+}
+
+.contact-label {
+    font-family: 'Tahoma';
+    font-size: 24px;
+    color: #6D697B;
+}
+
+.contact-value {
+    font-family: 'Tahoma';
+    font-size: 24px;
+    color: #000000;
+}

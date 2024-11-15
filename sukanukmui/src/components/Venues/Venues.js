@@ -8,7 +8,7 @@ import TennisCourt from '../../images/TennisCourtUKM.jpg';
 import StadiumUKM from '../../images/StadiumUKM.jpg';
 import SquashComplex from '../../images/SquashComplex.jpg';
 import './Venues.css';
-import Layout from '../Layout';
+//import Layout from '../Layout';
 
 const Venues = () => {
   const [venues] = useState([
@@ -70,7 +70,6 @@ const Venues = () => {
   };
 
   return (
-    <Layout>
     <div className="venues-container">
         
       {/* Banner Section */}
@@ -120,7 +119,6 @@ const Venues = () => {
         <FaPlus />
       </button>
     </div>
-    </Layout>
   );
 };
 

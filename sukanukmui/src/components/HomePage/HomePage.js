@@ -5,7 +5,7 @@ import Hero from '../Hero';
 import HeroStudent from '../HeroStudent';
 import Carousel from '../Carousel';
 import CarouselStudent from '../CarouselStudent';
-import Layout from '../Layout';
+//import Layout from '../Layout';
 import './HomePage.css';
 
 // Add this to determine whether user is an Admin or Student 
@@ -37,13 +37,11 @@ const AdminView = () => {
     const { user } = useContext(UserContext);
   
     return (
-      <Layout>
         <div className="homepage">
           <main>
             {user?.role === 'admin' ? <AdminView /> : <StudentView />}
           </main>
         </div>
-      </Layout>
     );
   };
   
