@@ -58,7 +58,7 @@ const Navbar = () => {
             onClick={() => setIsProfileOpen(!isProfileOpen)}
             className="profile-btn"
           >
-            {user?.username || 'S01001'} {/* Show actual username if available */}
+            {user?.UserID} {/* Show actual username if available */}
           </button>
               {isProfileOpen && (
                 <div className="dropdown-menu">

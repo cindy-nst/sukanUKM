@@ -13,11 +13,8 @@ export const UserProvider = ({ children }) => {
     }
   }, []);
 
-  const login = (username) => {
-    const userData = {          // This is temporary, to use "admin" when logging in to see the admin view
-        username: username,
-        role: username.toLowerCase() === 'admin' ? 'admin' : 'student'
-      };
+  const login = (userData) => {
+    // Store user data (including role) in state and localStorage
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
   };

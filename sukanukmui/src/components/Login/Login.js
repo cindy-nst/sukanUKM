@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserContext';
 import './Login.css';
@@ -6,11 +6,16 @@ import './Login.css';
 
 function Login() {
   const navigate = useNavigate();
-  const { login } = useContext(UserContext);
+  const { login, logout } = useContext(UserContext);
   const [credentials, setCredentials] = useState({
     username: '',
     password: ''
   });
+
+  // Ensure the user is logged out every time the Login component is accessed
+  useEffect(() => {
+    logout(); // Set user to null
+  }, [logout]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -20,11 +25,32 @@ function Login() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Login attempted with:', credentials);
-    login(credentials.username);
-    navigate('/home');
+  
+    // Send credentials to the backend API
+    try {
+      const response = await fetch('http://localhost:5000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+  
+      const data = await response.json();
+      if (response.ok) {
+        // Login successful, store user data in context
+        login(data.user);  // Or any other user info you want
+        navigate('/home');
+      } else {
+        alert(data.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      alert('An error occurred during login');
+    }
   };
 
   const handleForgotPassword = () => {

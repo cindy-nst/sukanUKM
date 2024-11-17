@@ -9,6 +9,7 @@ function ForgotPassword() {
     newPassword: '',
     confirmPassword: ''
   });
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -18,20 +19,39 @@ function ForgotPassword() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.newPassword !== formData.confirmPassword) {
       alert('Passwords do not match!');
       return;
     }
-    console.log('Password reset attempted with:', formData);
-    navigate('/login');
+
+    try {
+      // Send a request to the backend to reset the password
+      const response = await fetch('http://localhost:5000/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert('Password successfully reset. You can now log in with the new password.');
+        navigate('/login');
+      } else {
+        setErrorMessage(data.message || 'Password reset failed.');
+      }
+    } catch (error) {
+      console.error('Error during password reset:', error);
+      setErrorMessage('An error occurred while resetting your password.');
+    }
   };
 
   return (
     <div className="forgot-password-container">
       <div className="forgot-password-box">
-        {/* Logo */}
         <div className="logo-container">
           <h1 className="logo">
             SUKAN<span className="yellow">U</span>
@@ -43,7 +63,8 @@ function ForgotPassword() {
 
         <h2 className="page-title">Forgot Password</h2>
 
-        {/* Forgot Password Form */}
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
+
         <form className="forgot-password-form" onSubmit={handleSubmit}>
           <div className="input-group">
             <div className="input-container">
