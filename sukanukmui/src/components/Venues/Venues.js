@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'; // Import Link for navigation
 import { FaSearch, FaMapMarkerAlt, FaPlus } from 'react-icons/fa';
+import { useNavigate } from "react-router-dom";
 import './Venues.css';
 
 const Venues = () => {
+  const navigate = useNavigate();
   const [venues, setVenues] = useState([]); // State to store venues from the server
   const [searchTerm, setSearchTerm] = useState(''); // State for search input
 
@@ -39,6 +41,7 @@ const Venues = () => {
 
   const handleAddVenue = () => {
     // Implement "Add venue" functionality
+    navigate("/add-venue");
   };
 
   return (
