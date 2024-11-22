@@ -11,7 +11,7 @@ const Carousel = () => {
     {
       title: "Manage Equipment",
       image: equipment,
-      to: "/manage-equipment"
+      to: "/sportequipment"
     },
     {
       title: "Manage Court",

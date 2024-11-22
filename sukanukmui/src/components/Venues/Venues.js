@@ -1,77 +1,48 @@
-// Venues.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; // Import Link for navigation
 import { FaSearch, FaMapMarkerAlt, FaPlus } from 'react-icons/fa';
-import court from '../../images/court.jpg';
-import futsalCourt from '../../images/KPZFutsalCourt.jpg';
-import SerbagunaCourt from '../../images/GelanggangSerbagunaUKM.jpg';
-import TennisCourt from '../../images/TennisCourtUKM.jpg';
-import StadiumUKM from '../../images/StadiumUKM.jpg';
-import SquashComplex from '../../images/SquashComplex.jpg';
 import './Venues.css';
-//import Layout from '../Layout';
 
 const Venues = () => {
-  const [venues] = useState([
-    {
-      id: 1,
-      name: 'KPZ Futsal Court',
-      image: futsalCourt,
-      sports: ['FUTSAL', 'FRISBEE', 'HANDBALL', 'DODGEBALL'],
-      mapUrl: 'https://maps.app.goo.gl/tjU1LRnwYFoZcZz9'
-    },
-    {
-      id: 2,
-      name: 'KKM Badminton Hall',
-      image: court,
-      sports: ['BADMINTON'],
-      mapUrl: 'https://maps.app.goo.gl/tjU1LRnwYFoZcZz9'
-    },
-    {
-      id: 3,
-      name: 'Gelanggang Serbaguna UKM (Outdoor)',
-      image: SerbagunaCourt,
-      sports: ['HANDBALL', 'HOCKEY', 'FUTSAL', 'DODGEBALL'],
-      mapUrl: 'https://maps.app.goo.gl/tjU1LRnwYFoZcZz9'
-    },
-    {
-      id: 4,
-      name: 'Tennis Court UKM',
-      image: TennisCourt,
-      sports: ['TENNIS'],
-      mapUrl: 'https://maps.app.goo.gl/tjU1LRnwYFoZcZz9'
-    },
-    {
-      id: 5,
-      name: 'Stadium UKM',
-      image: StadiumUKM,
-      sports: ['TRACK & FIELD', 'FOOTBALL'],
-      mapUrl: 'https://maps.app.goo.gl/tjU1LRnwYFoZcZz9'
-    },
-    {
-      id: 6,
-      name: 'Squash Complex',
-      image: SquashComplex,
-      sports: ['SQUASH'],
-      mapUrl: 'https://maps.app.goo.gl/tjU1LRnwYFoZcZz9'
-    }
-  ]);
+  const [venues, setVenues] = useState([]); // State to store venues from the server
+  const [searchTerm, setSearchTerm] = useState(''); // State for search input
+
+  // Fetch venues from the backend on component mount
+  useEffect(() => {
+    fetch('http://localhost:5000/api/courts') // Backend endpoint
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Failed to fetch venues');
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setVenues(data); // Update state with the fetched data
+      })
+      .catch((error) => {
+        console.error('Error fetching venues:', error.message);
+      });
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Implement search functionality
+    // Filter venues based on the search term
+    const filteredVenues = venues.filter((venue) =>
+      venue.CourtName.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setVenues(filteredVenues);
   };
 
   const handleSeeMore = () => {
-    // Implement see more functionality
+    // Implement "See more" functionality, if applicable
   };
 
   const handleAddVenue = () => {
-    // Implement add venue functionality
+    // Implement "Add venue" functionality
   };
 
   return (
     <div className="venues-container">
-        
       {/* Banner Section */}
       <div className="venues-banner">
         <h1>Manage Court</h1>
@@ -80,6 +51,8 @@ const Venues = () => {
             type="text"
             placeholder="Search venue name"
             className="search-input"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
           <button type="submit" className="search-button">
             <FaSearch />
@@ -92,21 +65,25 @@ const Venues = () => {
         <h2>Featured Venues</h2>
         <div className="venues-grid">
           {venues.map((venue) => (
-            <div key={venue.id} className="venue-card">
+            <Link
+              to={`/courts/${venue.CourtID}`} // Link to CourtDetail with CourtID
+              key={venue.CourtID}
+              className="venue-card"
+            >
               <div className="venue-image">
-                <img src={venue.image} alt={venue.name} />
+                <img
+                  src={`http://localhost:5000/images/${venue.CourtPic}`} // Serve images via backend
+                  alt={venue.CourtName}
+                />
               </div>
               <div className="venue-info">
-                <div className="sports-categories">
-                  {venue.sports.join(', ')}
-                </div>
-                <h3 className="venue-name">{venue.name}</h3>
-                <a href={venue.mapUrl} className="map-link">
+                <h3 className="venue-name">{venue.CourtName}</h3>
+                <a href={`https://maps.google.com?q=${venue.CourtLocation}`} className="map-link" onClick={(e) => e.stopPropagation()}>
                   <FaMapMarkerAlt />
-                  <span>{venue.mapUrl}</span>
+                  <span>{venue.CourtLocation}</span>
                 </a>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
         <button className="see-more-button" onClick={handleSeeMore}>

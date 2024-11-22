@@ -31,7 +31,7 @@ const Navbar = () => {
       <div className="menu-items">
         <Link to="/home">Explore</Link>
         <Link to="/venues">Venues</Link>
-        <Link to="/equipments">Equipments</Link>
+        <Link to="/sportequipment">Equipments</Link>
         <Link to="/report">Report</Link>
       </div>
 

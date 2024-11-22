@@ -4,6 +4,8 @@ import Login from '../Login/Login';
 import ForgotPassword from '../ForgotPassword/ForgotPassword';
 import HomePage from '../HomePage/HomePage';
 import Venues from '../Venues/Venues';
+import SportEquipment from '../SportEquipment/SportEquipment';
+import CourtDetail from '../CourtDetail/CourtDetail';
 import Profile from '../Profile/Profile';
 import Navbar from '../Navbar';
 import { UserContext } from '../UserContext'; // Assuming this is where your UserContext is defined
@@ -23,6 +25,8 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/home" element={<HomePage />} />
         <Route path="/venues" element={<Venues />} />
+        <Route path="/sportequipment" element={<SportEquipment/>} />
+        <Route path="/courts/:id" element={<CourtDetail />} />
         <Route path="/profile" element={<Profile />} />
         {/* Add other routes as needed */}
       </Routes>
