@@ -6,7 +6,7 @@ import HomePage from '../HomePage/HomePage';
 import Venues from '../Venues/Venues';
 import SportEquipment from '../SportEquipment/SportEquipment';
 import EditEquipment from '../EditSportEquipment/EditEquipment';
-import CourtDetail from '../CourtDetail/CourtDetail';
+import CourtDetail from '../Venues/CourtDetail';
 import Profile from '../Profile/Profile';
 import Navbar from '../Navbar';
 import AddVenue from '../Venues/AddVenue';
