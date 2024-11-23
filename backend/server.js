@@ -8,6 +8,7 @@ const path = require('path');
 
 const app = express();
 const port = 5000;
+const fs = require('fs');
 
 // Middleware
 app.use(cors());
@@ -192,6 +193,111 @@ app.get('/api/sportequipment', (req, res) => {
     }
     res.status(200).json(results); // Send the data as a JSON response
   });
+});
+
+
+// API endpoint to fetch court details by ID
+app.get('/api/sportequipment/:id', (req, res) => {
+  const { id } = req.params;
+  const query = 'SELECT * FROM sportequipment WHERE ItemID = ?';
+
+  db.execute(query, [id], (err, results) => {
+    if (err) {
+      return res.status(500).json({ message: 'Database error', error: err });
+    }
+
+    if (results.length > 0) {
+      res.status(200).json(results[0]);  // Return the court details
+    } else {
+      res.status(404).json({ message: 'Equipment not found' });
+    }
+  });
+});
+
+// Add this endpoint to your server file
+
+app.put('/api/sportequipment/:ItemID', upload.single('sportImage'), async (req, res) => {
+  const { ItemID } = req.params;
+  // Parse the form data, handling both JSON and form data cases
+  const itemData = req.body.equipment ? JSON.parse(req.body.equipment) : req.body;
+  const { ItemName, ItemQuantity } = itemData;
+
+  try {
+    // Input validation
+    if (!ItemName || ItemQuantity === undefined) {
+      return res.status(400).json({ 
+        message: 'Missing required fields',
+        required: ['ItemName', 'ItemQuantity'],
+        received: itemData 
+      });
+    }
+
+    // Start building the update query and values
+    let query = 'UPDATE sportequipment SET ItemName = ?, ItemQuantity = ?';
+    let values = [ItemName, ItemQuantity];
+
+    // If there's a new image uploaded, handle it
+    if (req.file) {
+      // Get the old image path first to delete it later
+      const [oldImage] = await db.promise().execute(
+        'SELECT SportPic FROM sportequipment WHERE ItemID = ?',
+        [ItemID]
+      );
+
+      // Add SportPic to the update query
+      query += ', SportPic = ?';
+      values.push(req.file.filename);
+
+      // Delete old image if it exists
+      if (oldImage[0]?.SportPic) {
+        const oldPath = path.join(__dirname, 'uploads', oldImage[0].SportPic);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+    }
+
+    // Complete the query
+    query += ' WHERE ItemID = ?';
+    values.push(ItemID);
+
+    // Execute the update
+    const [result] = await db.promise().execute(query, values);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ 
+        message: 'Equipment not found',
+        itemId: ItemID 
+      });
+    }
+
+    // Fetch the updated record to return
+    const [updated] = await db.promise().execute(
+      'SELECT * FROM sportequipment WHERE ItemID = ?',
+      [ItemID]
+    );
+
+    res.status(200).json({ 
+      message: 'Equipment updated successfully',
+      equipment: updated[0]
+    });
+
+  } catch (error) {
+    console.error('Database error:', error);
+    
+    // If there was an error and we uploaded a new file, clean it up
+    if (req.file) {
+      const filePath = path.join(__dirname, 'uploads', req.file.filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    return res.status(500).json({ 
+      message: 'Error updating equipment',
+      error: error.message 
+    });
+  }
 });
 
 // Start the server
