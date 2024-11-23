@@ -5,6 +5,7 @@ import ForgotPassword from '../ForgotPassword/ForgotPassword';
 import HomePage from '../HomePage/HomePage';
 import Venues from '../Venues/Venues';
 import SportEquipment from '../SportEquipment/SportEquipment';
+import EditEquipment from '../EditSportEquipment/EditEquipment';
 import CourtDetail from '../CourtDetail/CourtDetail';
 import Profile from '../Profile/Profile';
 import Navbar from '../Navbar';
@@ -27,6 +28,7 @@ function App() {
         <Route path="/home" element={<HomePage />} />
         <Route path="/venues" element={<Venues />} />
         <Route path="/sportequipment" element={<SportEquipment/>} />
+        <Route path="/equipment/:ItemID" element={<EditEquipment />} />
         <Route path="/courts/:id" element={<CourtDetail />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/add-venue" element={<AddVenue />} />
