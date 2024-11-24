@@ -15,7 +15,7 @@ const CarouselStudent = () => {
     {
       title: "Book Court",
       image: court,
-      to: "/venues"
+      to: "/book-court"
     }
   ];
 

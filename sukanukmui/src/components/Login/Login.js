@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../UserContext';
 import './Login.css';
 
-
 function Login() {
   const navigate = useNavigate();
   const { login, logout } = useContext(UserContext);
@@ -11,10 +10,10 @@ function Login() {
     username: '',
     password: ''
   });
+  const [error, setError] = useState('');
 
-  // Ensure the user is logged out every time the Login component is accessed
   useEffect(() => {
-    logout(); // Set user to null
+    logout();
   }, [logout]);
 
   const handleInputChange = (e) => {
@@ -23,13 +22,13 @@ function Login() {
       ...prev,
       [name]: value
     }));
+    setError(''); // Clear error when user types
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login attempted with:', credentials);
-  
-    // Send credentials to the backend API
+    setError('');
+    
     try {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
@@ -40,16 +39,23 @@ function Login() {
       });
   
       const data = await response.json();
+      
       if (response.ok) {
-        // Login successful, store user data in context
-        login(data.user);  // Or any other user info you want
-        navigate('/home');
+        // Store complete user data including role and details
+        const userData = {
+          ...data.user,
+          role: data.role,
+          details: data.details
+        };
+        
+        login(userData);
+        navigate('/home'); // Navigate to home page for all users
       } else {
-        alert(data.message || 'Login failed');
+        setError(data.message || 'Login failed');
       }
     } catch (error) {
       console.error('Error during login:', error);
-      alert('An error occurred during login');
+      setError('An error occurred during login');
     }
   };
 
@@ -70,6 +76,8 @@ function Login() {
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
+          {error && <div className="error-message">{error}</div>}
+          
           <div className="input-group">
             <div className="input-container">
               <span className="icon">

@@ -123,7 +123,7 @@ const handleSubmit = async (e) => {
             </div>
             <div className="upload-button">
               <label htmlFor="image-upload" className="upload-label">
-                UPLOAD PHOTO
+                Upload Photo
                 <input
                   id="image-upload"
                   type="file"
@@ -133,6 +133,11 @@ const handleSubmit = async (e) => {
                 />
               </label>
             </div>
+            {imageFile && (
+              <div className="file-name">
+                {imageFile.name}
+              </div>
+            )}
           </div>
 
           <div className="form-group">

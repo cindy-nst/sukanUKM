@@ -1,20 +1,25 @@
-import React, { useState, useContext } from 'react'; // Add useContext
-import { Link, useNavigate } from 'react-router-dom'; // Add useNavigate
-import { UserContext } from './UserContext'; // Add UserContext
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { UserContext } from './UserContext';
 import './Navbar.css';
 
 const Navbar = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
-  const { user, logout } = useContext(UserContext); // Add this
-  const navigate = useNavigate(); // Add this
+  const { user, logout } = useContext(UserContext);
+  const navigate = useNavigate();
 
-  // Add logout handler
   const handleLogout = () => {
-    logout(); // Clear user data from context
-    localStorage.removeItem('user'); // Clear user data from localStorage
-    setIsProfileOpen(false); // Close the dropdown
-    navigate('/'); // Navigate to login page
+    logout();
+    setIsProfileOpen(false);
+    navigate('/');
+  };
+
+  // Function to determine the appropriate venue-related link based on user role
+  const getVenueLink = () => {
+    return user?.role === 'Student' ? 
+      <Link to="/book-court">Book Court</Link> : 
+      <Link to="/venues">Venues</Link>;
   };
 
   return (
@@ -27,13 +32,15 @@ const Navbar = () => {
         </h1>
         <span className="tagline">Sports Booking System UKM</span>
       </div>
-
-      <div className="menu-items">
-        <Link to="/home">Explore</Link>
-        <Link to="/venues">Venues</Link>
-        <Link to="/sportequipment">Equipments</Link>
-        <Link to="/report">Report</Link>
-      </div>
+      
+      {user && (
+        <div className="menu-items">
+          <Link to="/home">Explore</Link>
+          {getVenueLink()}
+          <Link to="/sportequipment">Equipments</Link>
+          <Link to="/report">Report</Link>
+        </div>
+      )}
 
       <div className="nav-controls">
         <div className="language-switcher">
@@ -53,20 +60,22 @@ const Navbar = () => {
 
         <Link to="/help" className="help-btn">Help</Link>
 
-        <div className="profile-section">
-          <button 
-            onClick={() => setIsProfileOpen(!isProfileOpen)}
-            className="profile-btn"
-          >
-            {user?.UserID} {/* Show actual username if available */}
-          </button>
-              {isProfileOpen && (
-                <div className="dropdown-menu">
+        {user && (
+          <div className="profile-section">
+            <button 
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="profile-btn"
+            >
+              {user.UserID}
+            </button>
+            {isProfileOpen && (
+              <div className="dropdown-menu">
                 <Link to="/profile" onClick={() => setIsProfileOpen(false)}>Profile</Link>
                 <button onClick={handleLogout} className="logout-btn">Logout</button>
+              </div>
+            )}
           </div>
-          )}
-        </div>
+        )}
       </div>
     </nav>
   );

@@ -10,6 +10,7 @@ import CourtDetail from '../Venues/CourtDetail';
 import Profile from '../Profile/Profile';
 import Navbar from '../Navbar';
 import AddVenue from '../Venues/AddVenue';
+import BookCourt from '../BookCourt/BookCourt';
 import { UserContext } from '../UserContext'; // Assuming this is where your UserContext is defined
 
 import './App.css';
@@ -32,6 +33,7 @@ function App() {
         <Route path="/courts/:id" element={<CourtDetail />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/add-venue" element={<AddVenue />} />
+        <Route path="/book-court" element={<BookCourt />} />
         {/* Add other routes as needed */}
       </Routes>
     </div>

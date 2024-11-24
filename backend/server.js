@@ -47,36 +47,85 @@ db.connect((err) => {
 app.use('/images', express.static(path.join(__dirname, 'uploads')));
 
 // API endpoint to handle login
+// Modify the existing login endpoint to include role checking
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
-  // Query the database for the user
-  const query = 'SELECT * FROM user WHERE UserID = ?';
-  db.execute(query, [username], (err, results) => {
+  // First, check the user credentials and get basic user info
+  const userQuery = 'SELECT * FROM user WHERE UserID = ?';
+  db.execute(userQuery, [username], (err, userResults) => {
     if (err) {
       return res.status(500).json({ message: 'Database error', error: err });
     }
 
-    if (results.length > 0) {
-      const user = results[0];  // Assuming 'user' object contains the password field
+    if (userResults.length > 0) {
+      const user = userResults[0];
 
-      // First condition: Direct comparison with plain-text password (assuming the stored password may be plain-text)
-      if (password === user.Password) {
-        return res.status(200).json({ user: user });
-      }
-
-      // Second condition: If the first comparison failed, attempt bcrypt comparison for hashed password
-      bcrypt.compare(password, user.Password, (err, isMatch) => {
-        if (err) {
-          return res.status(500).json({ message: 'Error comparing passwords', error: err });
+      // Check password
+      const checkPassword = () => {
+        // Check for plain text password first
+        if (password === user.Password) {
+          determineUserRole(user);
+          return;
         }
 
-        if (isMatch) {
-          return res.status(200).json({ user: user });
-        } else {
-          return res.status(401).json({ message: 'Invalid username or password' });
-        }
-      });
+        // Then try bcrypt comparison
+        bcrypt.compare(password, user.Password, (err, isMatch) => {
+          if (err) {
+            return res.status(500).json({ message: 'Error comparing passwords', error: err });
+          }
+
+          if (isMatch) {
+            determineUserRole(user);
+          } else {
+            return res.status(401).json({ message: 'Invalid username or password' });
+          }
+        });
+      };
+
+      // Helper function to determine user role
+      const determineUserRole = (user) => {
+        // Check if user exists in student table
+        const studentQuery = 'SELECT * FROM student WHERE StudentID = ?';
+        db.execute(studentQuery, [user.UserID], (err, studentResults) => {
+          if (err) {
+            return res.status(500).json({ message: 'Database error', error: err });
+          }
+
+          if (studentResults.length > 0) {
+            // User is a student
+            return res.status(200).json({
+              user: user,
+              role: 'Student',
+              details: studentResults[0]
+            });
+          } else {
+            // Check if user exists in staff table
+            const staffQuery = 'SELECT * FROM ukmsportdepartment WHERE StaffID = ?';
+            db.execute(staffQuery, [user.UserID], (err, staffResults) => {
+              if (err) {
+                return res.status(500).json({ message: 'Database error', error: err });
+              }
+
+              if (staffResults.length > 0) {
+                // User is a staff member
+                return res.status(200).json({
+                  user: user,
+                  role: 'Staff',
+                  details: staffResults[0]
+                });
+              } else {
+                // User exists in user table but not in student or staff tables
+                return res.status(401).json({ message: 'User role not found' });
+              }
+            });
+          }
+        });
+      };
+
+      // Start the password check process
+      checkPassword();
+
     } else {
       return res.status(401).json({ message: 'Invalid username or password' });
     }
