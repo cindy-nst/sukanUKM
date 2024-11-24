@@ -85,7 +85,7 @@ const Venues = () => {
     setIsMapOpen(true); // Open the map modal
   };
   
-  const handleLocationConfirm = (newLocation) => {
+  /*const handleLocationConfirm = (newLocation) => {
     // If the venue already exists, update it, otherwise create a new one
     setVenues((prev) =>
       prev.map((venue) =>
@@ -95,7 +95,7 @@ const Venues = () => {
       )
     );
     setIsMapOpen(false); // Close the map modal after confirming
-  };
+  };*/
 
   const handleCloseMapModal = () => {
     setIsMapOpen(false); // Close the map modal

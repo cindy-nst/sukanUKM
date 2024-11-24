@@ -371,3 +371,102 @@ app.post('/api/add-court', upload.single('courtImage'), (req, res) => {
     }
   );
 });
+
+// API endpoint to update court details
+app.put('/api/courts/:CourtID', upload.single('courtImage'), async (req, res) => {
+  const { CourtID } = req.params; // Extract CourtID from URL
+  const { CourtName, CourtDescription, CourtLocation } = req.body;
+
+  try {
+    // Validate the required fields
+    if (!CourtName || !CourtDescription || !CourtLocation) {
+      return res.status(400).json({
+        message: 'All fields (CourtName, CourtDescription, CourtLocation) are required.',
+      });
+    }
+
+    // Validate and format CourtLocation
+    const locationRegex = /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/;
+    if (!locationRegex.test(CourtLocation)) {
+      return res.status(400).json({
+        message: 'CourtLocation must be in the format "lat,lng".',
+      });
+    }
+
+    // Start building the update query
+    let query = 'UPDATE court SET CourtName = ?, CourtDescription = ?, CourtLocation = ?';
+    let values = [CourtName, CourtDescription, CourtLocation];
+
+    // If a new court image is uploaded, handle it
+    if (req.file) {
+      // Fetch the old image filename to delete it
+      const [oldImage] = await db.promise().execute(
+        'SELECT CourtPic FROM court WHERE CourtID = ?',
+        [CourtID]
+      );
+
+      // Add CourtPic to the update query
+      query += ', CourtPic = ?';
+      values.push(req.file.filename);
+
+      // Delete the old image file if it exists
+      if (oldImage[0]?.CourtPic) {
+        const oldPath = path.join(__dirname, 'uploads', oldImage[0].CourtPic);
+        if (fs.existsSync(oldPath)) {
+          try {
+            fs.unlinkSync(oldPath); // Delete old image
+          } catch (err) {
+            console.error('Error deleting old image:', err);
+          }
+        }
+      }
+    }
+
+    // Complete the query
+    query += ' WHERE CourtID = ?';
+    values.push(CourtID);
+
+    // Execute the update query
+    const [result] = await db.promise().execute(query, values);
+
+    if (result.affectedRows === 0) {
+      // If the update failed (for example, the court doesn't exist), clean up the uploaded file
+      if (req.file) {
+        const filePath = path.join(__dirname, 'uploads', req.file.filename);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
+      return res.status(404).json({
+        message: 'Court not found',
+        courtId: CourtID,
+      });
+    }
+
+    // Fetch the updated record to return
+    const [updatedCourt] = await db.promise().execute(
+      'SELECT * FROM court WHERE CourtID = ?',
+      [CourtID]
+    );
+
+    res.status(200).json({
+      message: 'Court updated successfully',
+      court: updatedCourt[0],
+    });
+  } catch (error) {
+    console.error('Database error:', error);
+
+    // Clean up the uploaded file if there was an error
+    if (req.file) {
+      const filePath = path.join(__dirname, 'uploads', req.file.filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    return res.status(500).json({
+      message: 'Error updating court',
+      error: error.message,
+    });
+  }
+});

@@ -12,7 +12,6 @@ const CourtDetail = () => {
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [locationName, setLocationName] = useState(null);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     fetch(`http://localhost:5000/api/courts/${id}`)
       .then((response) => {
@@ -92,10 +91,10 @@ const CourtDetail = () => {
     window.open(googleMapsUrl, "_blank"); // Open Google Maps with the coordinates
     setIsMapOpen(false); // Close the map modal after confirming
   };
-
+  
   const handleEdit = () => {
     // Handle Edit logic here
-    alert("Edit button clicked!");
+    navigate(`/edit-venue/${court.CourtID}`);
   };
 
   const handleDelete = async () => {
