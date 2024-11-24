@@ -57,7 +57,7 @@ const EditEquipment = () => {
     }));
   };
 
-  // Update handleImageUpload
+// Modify the handleImageUpload function
 const handleImageUpload = (e) => {
   const file = e.target.files[0];
   if (file) {
@@ -69,34 +69,36 @@ const handleImageUpload = (e) => {
 const handleSubmit = async (e) => {
   e.preventDefault();
   try {
-    // Log the ItemID to verify it's correct
+    const formData = new FormData();
+
+    // Add the regular equipment data
+    formData.append('ItemName', equipment.ItemName);
+    formData.append('ItemQuantity', equipment.ItemQuantity);
+
+    // If there's a new image file, append it
+    if (imageFile) {
+      formData.append('sportImage', imageFile);
+    }
+
     console.log('Submitting update for ItemID:', ItemID);
 
     const response = await fetch(`http://localhost:5000/api/sportequipment/${ItemID}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        ItemName: equipment.ItemName,
-        ItemQuantity: equipment.ItemQuantity
-      })
+      // Remove the Content-Type header - it will be automatically set for FormData
+      body: formData
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || 'Failed to update equipment');
+      throw new Error('Failed to update equipment');
     }
 
     const data = await response.json();
     console.log('Success:', data);
     alert('Equipment updated successfully!');
-    // Optionally redirect or update UI
 
   } catch (error) {
     console.error('Error updating equipment:', error);
     setError(error.message);
-    alert('Failed to update equipment: ' + error.message);
   }
 };
 
