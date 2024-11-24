@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'; // Import Link for navigation
 import { FaSearch, FaPlus } from 'react-icons/fa'; // Icons for search and add
 import './SportEquipment.css'; // Assuming you have a corresponding CSS file for styling
+import { useNavigate } from "react-router-dom";
 
 const SportEquipment = () => {
+  const navigate = useNavigate();
   const [equipment, setEquipment] = useState([]); // State to store equipment data from the backend
   const [searchTerm, setSearchTerm] = useState(''); // State for the search input
 
@@ -38,6 +40,7 @@ const SportEquipment = () => {
 
   const handleAddEquipment = () => {
     // Implement "Add equipment" functionality (e.g., navigate to a form to add new equipment)
+    navigate("/add-sportequipment");
   };
 
   return (

@@ -470,3 +470,43 @@ app.put('/api/courts/:CourtID', upload.single('courtImage'), async (req, res) =>
     });
   }
 });
+
+
+// API Endpoint to Add Equipment
+app.post("/api/add-equipment", upload.single("SportPic"), (req, res) => {
+  const { ItemID, ItemName, ItemQuantity } = req.body;
+
+  // Validate the required fields
+  if (!ItemID || !ItemName || !ItemQuantity) {
+    return res.status(400).json({ message: "ItemID, ItemName, and ItemQuantity are required" });
+  }
+
+  // Ensure that a file is uploaded
+  if (!req.file) {
+    return res.status(400).json({ message: "Sport image (SportPic) is required" });
+  }
+
+  // Store the file path or filename (depending on how you plan to use the file)
+  const SportPic = req.file.filename; // Save only the filename in the database
+
+  // Prepare the SQL query to insert equipment into the database
+  const query = `
+    INSERT INTO sportequipment (ItemID, ItemName, ItemQuantity, SportPic)
+    VALUES (?, ?, ?, ?)
+  `;
+
+  // Execute the query to insert the equipment
+  db.query(query, [ItemID, ItemName, ItemQuantity, SportPic], (err, result) => {
+    if (err) {
+      console.error("Error inserting data: ", err);
+      return res.status(500).json({ message: "Failed to add equipment", error: err });
+    }
+
+    // Return a success response with the newly inserted equipment ID
+    res.status(200).json({
+      message: "Equipment added successfully",
+      equipmentId: result.insertId,
+      equipment: { ItemID, ItemName, ItemQuantity, SportPic },
+    });
+  });
+});
