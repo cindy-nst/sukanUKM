@@ -1,10 +1,12 @@
 // AddVenue.js
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import courtbanner from "../../images/court.jpg";
 import "./AddVenue.css";
 import MapModal from "./MapModal"; // Import the MapModal component
 
 const AddVenue = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
   const [isMapOpen, setIsMapOpen] = useState(false); // Modal state
   const [selectedLocation, setSelectedLocation] = useState({
     lat: null,
@@ -67,14 +69,22 @@ const AddVenue = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
   
+   
+  
     const formData = new FormData();
-    formData.append('CourtID', courtID);
-    formData.append('CourtName', courtName); // Assume courtName is stored in state
-    formData.append('CourtDescription', courtDescription); // Assume courtDescription is stored in state
-    formData.append('CourtLocation', direction); // Using the map link as location
+    formData.append("CourtID", courtID);
+    formData.append("CourtName", courtName);
+    formData.append("CourtDescription", courtDescription);
+    formData.append("latitude", selectedLocation.lat); // Append latitude
+  formData.append("longitude", selectedLocation.lng); // Append longitude
+
+  /// Save the lat,lng string to CourtLocation
+  const locationString = `${selectedLocation.lat},${selectedLocation.lng}`;
+  formData.append("CourtLocation", locationString); // Save lat,lng as string
     if (selectedImage) {
-      formData.append('courtImage', selectedImage); // Assume selectedImage holds the file
+      formData.append("courtImage", selectedImage);
     }
+  
   
     try {
       const response = await fetch('http://localhost:5000/api/add-court', {
@@ -85,6 +95,7 @@ const AddVenue = () => {
       const result = await response.json();
       if (response.ok) {
         alert(result.message);
+        navigate("/venues");
       } else {
         alert(result.message || 'Failed to add court');
       }
@@ -166,7 +177,7 @@ const AddVenue = () => {
 
           {/* COURT ID and DESCRIPTION */}
           <div className="form-column">
-            <label className="form-label">COURT ID</label>
+            <label className="form-label">COURT ID</label> 
             <input
               className="form-input"
               type="text"

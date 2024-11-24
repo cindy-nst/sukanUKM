@@ -84,6 +84,18 @@ const Venues = () => {
     setSelectedLocation({ lat, lng, name: locationName });
     setIsMapOpen(true); // Open the map modal
   };
+  
+  const handleLocationConfirm = (newLocation) => {
+    // If the venue already exists, update it, otherwise create a new one
+    setVenues((prev) =>
+      prev.map((venue) =>
+        venue.CourtID === selectedLocation.id
+          ? { ...venue, CourtLocation: `${newLocation.lat},${newLocation.lng}` }
+          : venue
+      )
+    );
+    setIsMapOpen(false); // Close the map modal after confirming
+  };
 
   const handleCloseMapModal = () => {
     setIsMapOpen(false); // Close the map modal

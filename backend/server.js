@@ -214,6 +214,25 @@ app.get('/api/sportequipment/:id', (req, res) => {
   });
 });
 
+// API endpoint to delete a court by ID
+app.delete('/api/courts/:id', (req, res) => {
+  const { id } = req.params;
+
+  const query = 'DELETE FROM court WHERE CourtID = ?';
+  db.execute(query, [id], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Error deleting court', error: err });
+    }
+
+    if (results.affectedRows > 0) {
+      res.status(200).json({ message: 'Court deleted successfully.' });
+    } else {
+      res.status(404).json({ message: 'Court not found.' });
+    }
+  });
+});
+
 // Add this endpoint to your server file
 
 // In your server.js file, update the PUT endpoint:
@@ -324,6 +343,12 @@ app.post('/api/add-court', upload.single('courtImage'), (req, res) => {
   if (!CourtID || !CourtName || !CourtDescription || !CourtLocation) {
     return res.status(400).json({ message: 'All fields are required.' });
   }
+  
+   // Validate and format CourtLocation
+   const locationRegex = /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/;
+   if (!locationRegex.test(CourtLocation)) {
+     return res.status(400).json({ message: 'CourtLocation must be in the format "lat,lng".' });
+   }
 
   let courtPic = null;
   if (req.file) {
