@@ -263,6 +263,25 @@ app.get('/api/sportequipment/:id', (req, res) => {
   });
 });
 
+// API endpoint to delete a court by ID
+app.delete('/api/courts/:id', (req, res) => {
+  const { id } = req.params;
+
+  const query = 'DELETE FROM court WHERE CourtID = ?';
+  db.execute(query, [id], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Error deleting court', error: err });
+    }
+
+    if (results.affectedRows > 0) {
+      res.status(200).json({ message: 'Court deleted successfully.' });
+    } else {
+      res.status(404).json({ message: 'Court not found.' });
+    }
+  });
+});
+
 // Add this endpoint to your server file
 
 // In your server.js file, update the PUT endpoint:
@@ -363,4 +382,180 @@ app.put('/api/sportequipment/:ItemID', upload.single('sportImage'), async (req, 
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
+});
+
+
+//for Add Court
+app.post('/api/add-court', upload.single('courtImage'), (req, res) => {
+  const { CourtID, CourtName, CourtDescription, CourtLocation } = req.body;
+
+  if (!CourtID || !CourtName || !CourtDescription || !CourtLocation) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+  
+   // Validate and format CourtLocation
+   const locationRegex = /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/;
+   if (!locationRegex.test(CourtLocation)) {
+     return res.status(400).json({ message: 'CourtLocation must be in the format "lat,lng".' });
+   }
+
+  let courtPic = null;
+  if (req.file) {
+    courtPic = req.file.filename; // Save only the filename in the database
+  }
+
+  const query = `
+    INSERT INTO court (CourtID, CourtName, CourtDescription, CourtLocation, CourtPic) 
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  db.execute(
+    query,
+    [CourtID, CourtName, CourtDescription, CourtLocation, courtPic],
+    (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Error adding court', error: err });
+      }
+      res.status(200).json({ message: 'Court added successfully!', courtID: CourtID });
+    }
+  );
+});
+
+// API endpoint to update court details
+app.put('/api/courts/:CourtID', upload.single('courtImage'), async (req, res) => {
+  const { CourtID } = req.params; // Extract CourtID from URL
+  const { CourtName, CourtDescription, CourtLocation } = req.body;
+
+  try {
+    // Validate the required fields
+    if (!CourtName || !CourtDescription || !CourtLocation) {
+      return res.status(400).json({
+        message: 'All fields (CourtName, CourtDescription, CourtLocation) are required.',
+      });
+    }
+
+    // Validate and format CourtLocation
+    const locationRegex = /^-?\d+(\.\d+)?,-?\d+(\.\d+)?$/;
+    if (!locationRegex.test(CourtLocation)) {
+      return res.status(400).json({
+        message: 'CourtLocation must be in the format "lat,lng".',
+      });
+    }
+
+    // Start building the update query
+    let query = 'UPDATE court SET CourtName = ?, CourtDescription = ?, CourtLocation = ?';
+    let values = [CourtName, CourtDescription, CourtLocation];
+
+    // If a new court image is uploaded, handle it
+    if (req.file) {
+      // Fetch the old image filename to delete it
+      const [oldImage] = await db.promise().execute(
+        'SELECT CourtPic FROM court WHERE CourtID = ?',
+        [CourtID]
+      );
+
+      // Add CourtPic to the update query
+      query += ', CourtPic = ?';
+      values.push(req.file.filename);
+
+      // Delete the old image file if it exists
+      if (oldImage[0]?.CourtPic) {
+        const oldPath = path.join(__dirname, 'uploads', oldImage[0].CourtPic);
+        if (fs.existsSync(oldPath)) {
+          try {
+            fs.unlinkSync(oldPath); // Delete old image
+          } catch (err) {
+            console.error('Error deleting old image:', err);
+          }
+        }
+      }
+    }
+
+    // Complete the query
+    query += ' WHERE CourtID = ?';
+    values.push(CourtID);
+
+    // Execute the update query
+    const [result] = await db.promise().execute(query, values);
+
+    if (result.affectedRows === 0) {
+      // If the update failed (for example, the court doesn't exist), clean up the uploaded file
+      if (req.file) {
+        const filePath = path.join(__dirname, 'uploads', req.file.filename);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
+      return res.status(404).json({
+        message: 'Court not found',
+        courtId: CourtID,
+      });
+    }
+
+    // Fetch the updated record to return
+    const [updatedCourt] = await db.promise().execute(
+      'SELECT * FROM court WHERE CourtID = ?',
+      [CourtID]
+    );
+
+    res.status(200).json({
+      message: 'Court updated successfully',
+      court: updatedCourt[0],
+    });
+  } catch (error) {
+    console.error('Database error:', error);
+
+    // Clean up the uploaded file if there was an error
+    if (req.file) {
+      const filePath = path.join(__dirname, 'uploads', req.file.filename);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    return res.status(500).json({
+      message: 'Error updating court',
+      error: error.message,
+    });
+  }
+});
+
+
+// API Endpoint to Add Equipment
+app.post("/api/add-equipment", upload.single("SportPic"), (req, res) => {
+  const { ItemID, ItemName, ItemQuantity } = req.body;
+
+  // Validate the required fields
+  if (!ItemID || !ItemName || !ItemQuantity) {
+    return res.status(400).json({ message: "ItemID, ItemName, and ItemQuantity are required" });
+  }
+
+  // Ensure that a file is uploaded
+  if (!req.file) {
+    return res.status(400).json({ message: "Sport image (SportPic) is required" });
+  }
+
+  // Store the file path or filename (depending on how you plan to use the file)
+  const SportPic = req.file.filename; // Save only the filename in the database
+
+  // Prepare the SQL query to insert equipment into the database
+  const query = `
+    INSERT INTO sportequipment (ItemID, ItemName, ItemQuantity, SportPic)
+    VALUES (?, ?, ?, ?)
+  `;
+
+  // Execute the query to insert the equipment
+  db.query(query, [ItemID, ItemName, ItemQuantity, SportPic], (err, result) => {
+    if (err) {
+      console.error("Error inserting data: ", err);
+      return res.status(500).json({ message: "Failed to add equipment", error: err });
+    }
+
+    // Return a success response with the newly inserted equipment ID
+    res.status(200).json({
+      message: "Equipment added successfully",
+      equipmentId: result.insertId,
+      equipment: { ItemID, ItemName, ItemQuantity, SportPic },
+    });
+  });
 });

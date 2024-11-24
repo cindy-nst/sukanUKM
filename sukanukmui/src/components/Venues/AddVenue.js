@@ -1,10 +1,12 @@
 // AddVenue.js
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Import useNavigate
 import courtbanner from "../../images/court.jpg";
 import "./AddVenue.css";
 import MapModal from "./MapModal"; // Import the MapModal component
 
 const AddVenue = () => {
+  const navigate = useNavigate(); // Initialize useNavigate
   const [isMapOpen, setIsMapOpen] = useState(false); // Modal state
   const [selectedLocation, setSelectedLocation] = useState({
     lat: null,
@@ -38,17 +40,21 @@ const AddVenue = () => {
     setIsMapOpen(false);
   };
 
+  const [selectedImage, setSelectedImage] = useState(null);
+
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
+  const file = e.target.files[0];
+  if (file) {
+    setSelectedImage(file); // Save the file to state
+    const reader = new FileReader();
       reader.onload = () => {
-        setImagePreview(reader.result); // Set the preview to the file's data URL
+        setImagePreview(reader.result); // Show preview
       };
-      reader.readAsDataURL(file); // Read the file as a data URL
+    reader.readAsDataURL(file);
     }
   };
 
+  
   const handleClearImage = () => {
     setImagePreview(null); // Clear the image preview
   };
@@ -56,6 +62,49 @@ const AddVenue = () => {
   const handleCourtIDChange = (e) => {
     setCourtID(e.target.value); // Update court ID state
   };
+
+  const [courtName, setCourtName] = useState(""); // State for court name
+  const [courtDescription, setCourtDescription] = useState(""); // State for court description
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+   
+  
+    const formData = new FormData();
+    formData.append("CourtID", courtID);
+    formData.append("CourtName", courtName);
+    formData.append("CourtDescription", courtDescription);
+    formData.append("latitude", selectedLocation.lat); // Append latitude
+  formData.append("longitude", selectedLocation.lng); // Append longitude
+
+  /// Save the lat,lng string to CourtLocation
+  const locationString = `${selectedLocation.lat},${selectedLocation.lng}`;
+  formData.append("CourtLocation", locationString); // Save lat,lng as string
+    if (selectedImage) {
+      formData.append("courtImage", selectedImage);
+    }
+  
+  
+    try {
+      const response = await fetch('http://localhost:5000/api/add-court', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      const result = await response.json();
+      if (response.ok) {
+        alert(result.message);
+        navigate("/venues");
+      } else {
+        alert(result.message || 'Failed to add court');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('An error occurred while adding the court');
+    }
+  };
+  
 
   return (
     <div className="add-venue"
@@ -84,6 +133,8 @@ const AddVenue = () => {
           <input
             className="form-input"
             type="text"
+            value={courtName} // Bind to courtName state
+            onChange={(e) => setCourtName(e.target.value)} // Update state on change
             placeholder="Enter the venue name"
           />
         </div>
@@ -126,7 +177,7 @@ const AddVenue = () => {
 
           {/* COURT ID and DESCRIPTION */}
           <div className="form-column">
-            <label className="form-label">COURT ID</label>
+            <label className="form-label">COURT ID</label> 
             <input
               className="form-input"
               type="text"
@@ -140,6 +191,8 @@ const AddVenue = () => {
             </label>
             <textarea
               className="form-input"
+              value={courtDescription} // Bind to courtDescription state
+              onChange={(e) => setCourtDescription(e.target.value)} // Update state on change
               placeholder="Enter what sport can be played on the venue"
             ></textarea>
           </div>
@@ -147,6 +200,8 @@ const AddVenue = () => {
 
         {/* Direction */}
         <div className="form-group">
+          <br></br>
+          <br></br>
           <label className="form-label" style={{ fontWeight: "bold", color: "black" }}>
             DIRECTION
           </label>
@@ -168,7 +223,7 @@ const AddVenue = () => {
           </div>
         </div>
 
-        <button className="form-submit">Submit</button>
+        <button className="form-submit" onClick={handleSubmit}>Submit</button>
       </div>
 
       {/* Modal with Map */}

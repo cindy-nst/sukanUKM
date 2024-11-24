@@ -1,24 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams,useNavigate } from "react-router-dom";
 import courtbanner from "../../images/court.jpg"; // You can change this if you have a different image for CourtDetail
 import "./CourtDetail.css";
 import MapModal from "./MapModal";
 
 const CourtDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [court, setCourt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [locationName, setLocationName] = useState(null);
   const [error, setError] = useState(null);
-
   useEffect(() => {
     fetch(`http://localhost:5000/api/courts/${id}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Court not found.");
         }
-        return response.json();
+        return response.json(); 
       })
       .then((data) => {
         setCourt(data);
@@ -91,16 +91,34 @@ const CourtDetail = () => {
     window.open(googleMapsUrl, "_blank"); // Open Google Maps with the coordinates
     setIsMapOpen(false); // Close the map modal after confirming
   };
-
+  
   const handleEdit = () => {
     // Handle Edit logic here
-    alert("Edit button clicked!");
+    navigate(`/edit-venue/${court.CourtID}`);
   };
 
-  const handleDelete = () => {
-    // Handle Delete logic here
-    alert("Delete button clicked!");
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this court?");
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch(`http://localhost:5000/api/courts/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        alert("Court deleted successfully.");
+        navigate("/venues"); // Redirect to the venues page
+      } else {
+        const result = await response.json();
+        alert(result.message || "Failed to delete court.");
+      }
+    } catch (error) {
+      console.error("Error deleting court:", error);
+      alert("An error occurred while deleting the court.");
+    }
   };
+
 
   return (
     <div className="add-court">
@@ -130,8 +148,12 @@ const CourtDetail = () => {
               />
             </div>
           </div>
+          
 
-          <div className="form-column">
+          <div className="form-column" style={{ marginTop: "20px" }}>
+          <label className="form-label">COURT ID</label>
+          <p>{court.CourtID}</p>
+          <br></br>
             <label className="form-label">DESCRIPTION</label>
             <p>{court.CourtDescription}</p>
           </div>

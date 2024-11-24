@@ -35,17 +35,21 @@ const MapModal = ({ mode, initialLocation, onClose, onConfirm }) => {
         const { lng, lat } = e.lngLat;
         console.log("Clicked location:", { lng, lat });
 
-        // If there's an existing marker, remove it
-        if (markerRef.current) {
-          markerRef.current.remove();
+        if (!isNaN(lng) && !isNaN(lat)) {
+          // If both lat and lng are valid numbers, set the selected location
+          if (markerRef.current) {
+            markerRef.current.remove();
+          }
+
+          // Add a new marker at the clicked location
+          markerRef.current = new mapboxgl.Marker()
+            .setLngLat([lng, lat])
+            .addTo(map);
+
+          setSelectedLocation({ lat, lng });
+        } else {
+          console.log("Invalid coordinates: ", lat, lng);
         }
-
-        // Add a new marker at the clicked location
-        markerRef.current = new mapboxgl.Marker()
-          .setLngLat([lng, lat])
-          .addTo(map);
-
-        setSelectedLocation({ lat, lng });
       });
     }
 
@@ -56,8 +60,8 @@ const MapModal = ({ mode, initialLocation, onClose, onConfirm }) => {
   }, [initialLocation, mode]);
 
   const handleConfirmLocation = () => {
-    if (selectedLocation) {
-      onConfirm(selectedLocation.lat, selectedLocation.lng);
+    if (selectedLocation && !isNaN(selectedLocation.lat) && !isNaN(selectedLocation.lng)) {
+      onConfirm(selectedLocation.lat, selectedLocation.lng);  // Pass the location to parent
     }
   };
 

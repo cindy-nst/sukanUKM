@@ -26,6 +26,14 @@
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the image fills the box while maintaining aspect ratio */
+  display: block;
+  border-radius: inherit;
+}
+
 /* Court Card Container */
 .court-card {
   max-width: 800px;
