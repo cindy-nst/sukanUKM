@@ -315,3 +315,34 @@ app.put('/api/sportequipment/:ItemID', upload.single('sportImage'), async (req, 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
+
+
+//for Add Court
+app.post('/api/add-court', upload.single('courtImage'), (req, res) => {
+  const { CourtID, CourtName, CourtDescription, CourtLocation } = req.body;
+
+  if (!CourtID || !CourtName || !CourtDescription || !CourtLocation) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  let courtPic = null;
+  if (req.file) {
+    courtPic = req.file.filename; // Save only the filename in the database
+  }
+
+  const query = `
+    INSERT INTO court (CourtID, CourtName, CourtDescription, CourtLocation, CourtPic) 
+    VALUES (?, ?, ?, ?, ?)
+  `;
+  db.execute(
+    query,
+    [CourtID, CourtName, CourtDescription, CourtLocation, courtPic],
+    (err, results) => {
+      if (err) {
+        console.error('Database error:', err);
+        return res.status(500).json({ message: 'Error adding court', error: err });
+      }
+      res.status(200).json({ message: 'Court added successfully!', courtID: CourtID });
+    }
+  );
+});
