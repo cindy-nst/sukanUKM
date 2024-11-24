@@ -216,11 +216,10 @@ app.get('/api/sportequipment/:id', (req, res) => {
 
 // Add this endpoint to your server file
 
+// In your server.js file, update the PUT endpoint:
 app.put('/api/sportequipment/:ItemID', upload.single('sportImage'), async (req, res) => {
   const { ItemID } = req.params;
-  // Parse the form data, handling both JSON and form data cases
-  const itemData = req.body.equipment ? JSON.parse(req.body.equipment) : req.body;
-  const { ItemName, ItemQuantity } = itemData;
+  const { ItemName, ItemQuantity } = req.body;
 
   try {
     // Input validation
@@ -228,7 +227,7 @@ app.put('/api/sportequipment/:ItemID', upload.single('sportImage'), async (req, 
       return res.status(400).json({ 
         message: 'Missing required fields',
         required: ['ItemName', 'ItemQuantity'],
-        received: itemData 
+        received: req.body 
       });
     }
 
@@ -238,7 +237,7 @@ app.put('/api/sportequipment/:ItemID', upload.single('sportImage'), async (req, 
 
     // If there's a new image uploaded, handle it
     if (req.file) {
-      // Get the old image path first to delete it later
+      // First, get the old image filename
       const [oldImage] = await db.promise().execute(
         'SELECT SportPic FROM sportequipment WHERE ItemID = ?',
         [ItemID]
@@ -252,7 +251,12 @@ app.put('/api/sportequipment/:ItemID', upload.single('sportImage'), async (req, 
       if (oldImage[0]?.SportPic) {
         const oldPath = path.join(__dirname, 'uploads', oldImage[0].SportPic);
         if (fs.existsSync(oldPath)) {
-          fs.unlinkSync(oldPath);
+          try {
+            fs.unlinkSync(oldPath);
+          } catch (err) {
+            console.error('Error deleting old image:', err);
+            // Continue with the update even if image deletion fails
+          }
         }
       }
     }
@@ -265,6 +269,13 @@ app.put('/api/sportequipment/:ItemID', upload.single('sportImage'), async (req, 
     const [result] = await db.promise().execute(query, values);
 
     if (result.affectedRows === 0) {
+      // If a new image was uploaded but update failed, delete it
+      if (req.file) {
+        const filePath = path.join(__dirname, 'uploads', req.file.filename);
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
       return res.status(404).json({ 
         message: 'Equipment not found',
         itemId: ItemID 
