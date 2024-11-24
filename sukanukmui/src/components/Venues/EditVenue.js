@@ -181,6 +181,8 @@ const EditVenue = () => {
 
         {/* Direction */}
         <div className="form-group">
+        <br></br>
+        <br></br>
           <label className="form-label" style={{ fontWeight: "bold", color: "black" }}>
             DIRECTION
           </label>
