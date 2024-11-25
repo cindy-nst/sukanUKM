@@ -597,3 +597,23 @@ app.get("/api/profile", (req, res) => {
     res.status(200).json({ profile: result[0] });
   });
 });
+
+//DELETE SPORT EQUIPMENT
+
+app.delete('/api/sportequipment/:id', (req, res) => {
+  const { id } = req.params;
+
+  const query = 'DELETE FROM sportequipment WHERE ItemID = ?';
+  db.execute(query, [id], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Error deleting Sport Equipment', error: err });
+    }
+
+    if (results.affectedRows > 0) {
+      res.status(200).json({ message: 'Sport Equipment deleted successfully.' });
+    } else {
+      res.status(404).json({ message: 'Sport Equipment not found.' });
+    }
+  });
+});

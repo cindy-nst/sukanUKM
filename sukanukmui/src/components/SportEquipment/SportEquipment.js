@@ -68,7 +68,7 @@ const SportEquipment = () => {
         <div className="equipment-grid">
           {equipment.map((item) => (
             <Link
-              to={`/equipment/${item.ItemID}`} // Link to equipment detail page with the equipment ID
+              to={`/equipment/details/${item.ItemID}`} // Link to equipment detail page with the equipment ID
               key={item.ItemID}
               className="equipment-card"
             >
