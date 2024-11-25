@@ -64,7 +64,7 @@ const EquipmentDetails = () => {
 
       <div className="equipment-details-content">
         {/* Image Section */}
-        <div className="equipment-image">
+        <div className="equipment-image-m">
           {equipment.SportPic && (
             <img
               src={`http://localhost:5000/images/${equipment.SportPic}`}
