@@ -1,76 +1,42 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import './styles.css';
+import { UserContext } from '../UserContext';
 
 const Profile = () => {
-  const [profile, setProfile] = useState(null);
-  const [basicName, setBasicName] = useState(null);
+  const { user } = useContext(UserContext);
+  const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const role = localStorage.getItem('role');
-  const userID = localStorage.getItem('userID');
-
   useEffect(() => {
-    if (!role || !userID) {
-      setError('User not logged in');
-      return;
-    }
-
-    console.log('Role:', role);
-    console.log('UserID:', userID);
-
-    // Fetch profile data
     const fetchProfile = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/getProfile/${role}/${userID}`);
+        const response = await fetch(`http://localhost:5000/api/profile?userId=${user.UserID}&role=${user.Role}`);
         if (!response.ok) {
-          throw new Error('Failed to fetch profile');
+          throw new Error("Failed to fetch profile data");
         }
         const data = await response.json();
-        console.log('Fetched profile data:', data);
-        setProfile(data);
-      } catch (error) {
-        setError(error.message);
-        console.error('Error fetching profile:', error);
+        setProfileData(data.profile);
+      } catch (err) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
     };
 
-    // Fetch basic name
-    const fetchBasicName = async () => {
-      try {
-        const response = await fetch(`http://localhost:5000/getName/${role}/${userID}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch name');
-        }
-        const data = await response.json();
-        if (role === 'Student') {
-          setBasicName(data.name);
-        } else if (role === 'Staff') {
-          setBasicName(data.name);
-        }
-      } catch (error) {
-        setError(error.message);
-        console.error('Error fetching name:', error);
-      }
-    };
+    if (user && user.UserID && user.Role) {
+      console.log("Fetching profile with:", user.UserID, user.Role); // Debug UserContext values
+      fetchProfile();
+    }
+  }, [user]);
 
-    fetchBasicName();
-    fetchProfile();
-  }, [role, userID]);
+  if (loading) return <div>Loading profile...</div>;
+  if (error) return <div>Error: {error}</div>;
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>{error}</div>;
-  }
-
-  if (!profile) {
-    return <div>Profile not found.</div>;
-  }
+  const picturePath =
+    profileData?.[user.Role === 'Student' ? 'StudentPicture' : 'StaffPicture']
+      ? require(`../../images/${profileData[user.Role === 'Student' ? 'StudentPicture' : 'StaffPicture']}`)
+      : require('../../images/rafa.jpg');
 
   return (
     <div className="profile-container">
@@ -80,20 +46,26 @@ const Profile = () => {
             <div
               className="profile-image"
               style={{
-                backgroundImage: `url(/images/${profile.StudentPicture || profile.StaffPicture || 'default.png'})`,
+                backgroundImage: `url(${picturePath})`,
               }}
             ></div>
             <div className="profile-details">
-              <div className="profile-id">{profile.StudentID || profile.StaffID}</div>
-              <div className="profile-name">{basicName}</div>
+              <div className="profile-id">({profileData?.[user.Role === 'Student' ? 'StudentID' : 'StaffID']})</div>
+              <div className="profile-name">
+                {profileData?.[user.Role === 'Student' ? 'StudentName' : 'StaffName']}
+              </div>
               <div className="contact-info">
                 <div className="contact-item">
                   <span className="contact-label">Phone No.</span>
-                  <span className="contact-value">{profile.StudentPhoneNumber || profile.StaffPhoneNumber}</span>
+                  <span className="contact-value">
+                    {profileData?.[user.Role === 'Student' ? 'StudentPhoneNumber' : 'StaffPhoneNumber']}
+                  </span>
                 </div>
                 <div className="contact-item">
                   <span className="contact-label">Email</span>
-                  <span className="contact-value">{profile.StudentEmail || profile.StaffEmail}</span>
+                  <span className="contact-value">
+                    {profileData?.[user.Role === 'Student' ? 'StudentEmail' : 'StaffEmail']}
+                  </span>
                 </div>
               </div>
             </div>

@@ -559,3 +559,41 @@ app.post("/api/add-equipment", upload.single("SportPic"), (req, res) => {
     });
   });
 });
+
+
+// API Endpoint to Retrieve User Profile
+app.get("/api/profile", (req, res) => {
+  const { userId, role } = req.query;
+
+  if (!userId || !role) {
+    return res.status(400).json({ message: "Missing userId or role" });
+  }
+
+  let tableName;
+  let idColumn;
+
+  if (role.toLowerCase() === "student") { // Normalize casing
+    tableName = "student";
+    idColumn = "StudentID";
+  } else if (role.toLowerCase() === "staff") {
+    tableName = "ukmsportdepartment";
+    idColumn = "StaffID";
+  } else {
+    return res.status(400).json({ message: "Invalid role" });
+  }
+
+  const query = `SELECT * FROM ${tableName} WHERE ${idColumn} = ?`;
+
+  db.query(query, [userId], (err, result) => {
+    if (err) {
+      console.error("Error retrieving user profile:", err);
+      return res.status(500).json({ message: "Failed to retrieve user profile" });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ profile: result[0] });
+  });
+});
