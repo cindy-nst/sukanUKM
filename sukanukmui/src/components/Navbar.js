@@ -22,6 +22,14 @@ const Navbar = () => {
       <Link to="/venues">Venues</Link>;
   };
 
+  // Function to determine the appropriate equipment-related link based on user role
+  const getEquipmentLink = () => {
+    return user?.role === 'Student' ? 
+      <Link to="/book-equipment">Book Equipment</Link> :
+      <Link to="/sportequipment">Equipments</Link>;
+  };
+  
+
   return (
     <nav className="navbar">
       <div className="brand">
@@ -37,7 +45,7 @@ const Navbar = () => {
         <div className="menu-items">
           <Link to="/home">Explore</Link>
           {getVenueLink()}
-          <Link to="/sportequipment">Equipments</Link>
+          {getEquipmentLink()}
           <Link to="/report">Report</Link>
         </div>
       )}

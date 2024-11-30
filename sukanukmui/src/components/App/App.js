@@ -15,6 +15,7 @@ import BookCourtDate from '../BookCourt/BookCourtDate';
 import EditVenue from '../Venues/EditVenue';
 import AddSportEquipment from '../SportEquipment/AddSportEquipement';
 import EquipmentDetails from '../EditSportEquipment/EquipmentDetails';
+import BookEquipment from '../SportEquipment/BookEquipment';
 import { UserContext } from '../UserContext'; // Assuming this is where your UserContext is defined
 
 import './App.css';
@@ -42,6 +43,7 @@ function App() {
         <Route path="/edit-venue/:CourtID" element={<EditVenue />} />
         <Route path="/add-sportequipment" element={<AddSportEquipment />} />
         <Route path="/equipment/details/:ItemID" element={<EquipmentDetails />} />
+        <Route path="/book-equipment" element={<BookEquipment />} />
         {/* Add other routes as needed */}
       </Routes>
     </div>
