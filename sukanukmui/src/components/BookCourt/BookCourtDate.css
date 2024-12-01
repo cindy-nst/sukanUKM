@@ -1,119 +1,421 @@
+/* Header Banner */
+.header-banner {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1%;
+}
+
+.heading-1 {
+  text-shadow: none;
+  font-size: 1.5em; /* Adjust for smaller screens */
+  text-align: center;
+  color: #fff;
+}
+
 /* Main container */
 .book-court-container {
-    font-family: Arial, sans-serif;
-    margin: 20px auto;
-    max-width: 1200px;
-    padding: 20px;
-    background-color: #f9f9f9;
-  }
-  
-  /* Header */
-  h1 {
-    text-align: center;
-    font-size: 2.5em;
-    color: #333;
-  }
-  
-  /* Booking steps */
-  .booking-steps {
-    display: flex;
-    justify-content: space-between;
-    margin: 20px 0;
-    border-bottom: 2px solid #ccc;
-    padding-bottom: 10px;
-  }
-  
-  .step {
-    flex: 1;
-    text-align: center;
-    font-weight: bold;
-    color: #999;
-    position: relative;
-  }
-  
-  .step.active {
-    color: #333;
-  }
-  
-  .step:after {
-    content: '';
-    position: absolute;
-    right: -50%;
-    top: 50%;
+  font-family: Arial, sans-serif;
+  margin: 20px auto;
+  max-width: 1200px;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2.5em;
+  color: #333;
+}
+
+/* Booking steps */
+.booking-steps {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 10px;
+}
+
+.step {
+  flex: 1;
+  text-align: center;
+  font-weight: bold;
+  color: #999;
+  position: relative;
+}
+
+.step.active {
+  color: #16056B;
+}
+
+.step:after {
+  content: '';
+  position: absolute;
+  right: -50%;
+  top: 50%;
+  width: 100%;
+  height: 2px;
+  background-color: #ccc;
+  transform: translateY(-50%);
+  z-index: -1;
+}
+
+.step:last-child:after {
+  display: none;
+}
+
+/* Booking details */
+.booking-details-container {
+  display: flex;
+  flex-wrap: wrap; /* Stack items on smaller screens */
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.booking-form,
+.my-cart {
+  flex: 1;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.booking-form {
+  flex-basis: 60%; /* Maintain your design proportions */
+}
+
+.booking-form h3 {
+  display: flex;
+  align-items: center;
+  font-size: 1.2em; /* Reduce slightly on smaller screens */
+  margin-bottom: 15px;
+  color: #16056B;
+  font-weight: lighter;
+}
+
+/* Number Circle */
+.number-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #4361EE;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: lighter;
+  margin-right: 10px;
+  border: 1px solid white;
+  transition-duration: 200ms;
+}
+
+.number-circle-none {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  color: #D0D0D1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: lighter;
+  margin-right: 10px;
+  border: 1px solid #D0D0D1;
+  transition-duration: 200ms;
+}
+
+/* Form Input */
+.book-court-container input,
+.book-court-container select {
+  width: 88%;
+  padding: 10px;
+  margin-bottom: 15px;
+  margin-left: 5%;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* Time slots */
+.time-slots {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Responsive layout */
+  gap: 10px;
+  margin-left: 5%;
+  margin-top: 10px;
+}
+
+.time-slot {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.time-slot:hover,
+.time-slot.selected {
+  background-color: #4361ee;
+  color: white;
+  font-weight: bold;
+}
+
+/* Time message */
+.time-message {
+  font-size: 14px;
+  font-style: italic;
+  color: #555;
+  margin-top: 10px;
+  margin-left: 40px;
+}
+
+.my-cart h2 {
+  color: #16056B;
+  text-align: center;
+}
+
+.my-cart {
+  flex-basis: 35%;
+}
+
+.cart-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 5px;
+}
+
+.cart-details {
+  flex: 1;
+}
+
+.cart-sports {
+  font-weight: bold;
+  font-size: 12px;
+  color: #007bff;
+}
+
+.cart-location {
+  font-weight: bolder;
+  font-size: 1em;
+  color: #16056B;
+}
+
+.cart-map a {
+  font-size: 0.6em;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.cart-map a:hover {
+  text-decoration: underline;
+}
+
+.cart-image {
+  flex: none; /* Remove flex-grow to ensure the width and height are fixed */
+  width: 200px; /* Set a fixed width */
+  height: 150px; /* Match the height to the width */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cart-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the image covers the container while maintaining its aspect ratio */
+  border-radius: 8px;
+}
+
+/* Divider */
+.divider {
+  border-top: 2px solid #ddd;
+  margin: 20px 0;
+  width: 100%;
+}
+
+.booking-info strong {
+  font-size: 1.1em;
+  font-weight: bolder;
+  color: #16056B;
+}
+
+.date-section {
+  font-size: 0.95em;
+  font-weight:bold;
+  color: #16056B;
+}
+
+.date-time-section {
+  font-size: 0.9em;
+  font-weight: lighter;
+  color: black;
+}
+
+/* Proceed button */
+.proceed-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #0043FF;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.proceed-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+  /*Loading Animation*/
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 2px;
-    background-color: #ccc;
-    transform: translateY(-50%);
-    z-index: -1;
-  }
-  
-  .step:last-child:after {
-    display: none;
-  }
-  
-  /* Booking details */
-  .booking-details-container {
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    margin-top: 20px;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
   }
   
-  .booking-form {
-    flex: 2;
-    background: white;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+  .spinner {
+    display: inline-block;
+    width:20px;
+    height: 20px;
+    animation: morph 2s infinite;
   }
-  
+    @keyframes morph {
+        0%, 100% {
+        border-radius: 50%; 
+        transform: rotate(0deg); 
+        background-color: blue;
+        }
+        50%{
+            border-radius: 0%; 
+            transform: rotate(180deg);
+            background-color: blueviolet;
+        }
+    }
+    
+/* Media Queries */
+@media (max-width: 1024px) {
+  .booking-details-container {
+    flex-direction: column; /* Stack containers vertically */
+    align-items: center;
+  }
+
+  .booking-form,
+  .my-cart {
+    flex-basis: 100%;
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .time-slots {
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Smaller slots */
+  }
+
+  .cart-image {
+    width: 180px; /* Slightly smaller image */
+    height: 130px;
+  }
+
   .booking-form h3 {
-    margin-bottom: 10px;
+    font-size: 1.1em; /* Adjust header size */
+  }
+}
+
+@media (max-width: 768px) {
+  .header-banner {
+    height: 150px; /* Reduce banner size */
+  }
+
+  .heading-1 {
     font-size: 1.2em;
   }
-  
-  input-b, select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+
+  input, select {
+    width: 90%; /* Adjust form width */
+    margin-left: 5%;
   }
-  
-  /* My cart */
-  .my-cart {
-    flex: 1;
-    background: white;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    text-align: center;
+
+  .number-circle,
+  .number-circle-none {
+    width: 25px;
+    height: 25px;
+    font-size: 14px;
   }
-  
-  .my-cart img {
-    max-width: 100%;
-    height: auto;
-    margin-bottom: 15px;
-    border-radius: 8px;
+
+  .time-slots {
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
   }
-  
-  .my-cart p {
-    margin: 10px 0;
+
+  .cart-image {
+    width: 160px; /* Adjust for smaller screen */
+    height: 120px;
   }
-  
+
+  .booking-form h3 {
+    font-size: 1em; /* Reduce size */
+  }
+
+  .cart-sports {
+    font-size: 10px; /* Adjust font size */
+  }
+}
+
+@media (max-width: 480px) {
+  .header-banner {
+    height: 100px;
+  }
+
+  .heading-1 {
+    font-size: 1em;
+  }
+
+  input, select {
+    width: 100%; /* Full width for inputs */
+    margin-left: 0;
+  }
+
+  .number-circle,
+  .number-circle-none {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
+
+  .time-slot {
+    font-size: 0.8em;
+    padding: 8px;
+  }
+
   .proceed-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
+    font-size: 14px;
+    padding: 8px;
   }
-  
-  .proceed-button:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
+
+  .cart-image {
+    width: 140px; /* Further reduce size */
+    height: 100px;
   }
-  
+
+  .cart-sports {
+    font-size: 9px; /* Adjust for small screens */
+  }
+}

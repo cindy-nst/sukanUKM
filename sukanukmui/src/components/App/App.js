@@ -12,6 +12,8 @@ import Navbar from '../Navbar';
 import AddVenue from '../Venues/AddVenue';
 import BookCourt from '../BookCourt/BookCourt';
 import BookCourtDate from '../BookCourt/BookCourtDate';
+import BookConfirmation from '../BookCourt/BookConfirmation';
+import BookDone from '../BookCourt/BookingDone';
 import EditVenue from '../Venues/EditVenue';
 import AddSportEquipment from '../SportEquipment/AddSportEquipement';
 import EquipmentDetails from '../EditSportEquipment/EquipmentDetails';
@@ -40,6 +42,8 @@ function App() {
         <Route path="/add-venue" element={<AddVenue />} />
         <Route path="/book-court" element={<BookCourt />} />
         <Route path="/book/:CourtID" element={<BookCourtDate />} />
+        <Route path="/book-confirmation/:CourtID" element={<BookConfirmation />} />
+        <Route path="/book-done/:CourtID" element={<BookDone />} />
         <Route path="/edit-venue/:CourtID" element={<EditVenue />} />
         <Route path="/add-sportequipment" element={<AddSportEquipment />} />
         <Route path="/equipment/details/:ItemID" element={<EquipmentDetails />} />
