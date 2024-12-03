@@ -617,3 +617,89 @@ app.delete('/api/sportequipment/:id', (req, res) => {
     }
   });
 });
+
+
+// For Add Booking Court
+const { v4: uuidv4 } = require('uuid'); // Install UUID with `npm install uuid`
+
+app.post('/api/addBookingCourt', async (req, res) => {
+  const { CourtID, StudentID, BookingCourtTime, BookingCourtDate } = req.body;
+
+  if (!CourtID || !StudentID || !BookingCourtTime || !BookingCourtDate) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  // Generate a unique BookingCourtID
+  let BookingCourtID = uuidv4(); // Generate UUID
+
+  try {
+    // Check if the BookingCourtID already exists
+    const checkQuery = `SELECT BookingCourtID FROM bookingcourt WHERE BookingCourtID = ?`;
+    const [rows] = await db.promise().execute(checkQuery, [BookingCourtID]);
+
+    // Regenerate if ID exists
+    while (rows.length > 0) {
+      BookingCourtID = uuidv4();
+    }
+
+    // Insert booking into the database
+    const insertQuery = `
+      INSERT INTO bookingcourt (BookingCourtID, CourtID, StudentID, BookingCourtTime, BookingCourtDate) 
+      VALUES (?, ?, ?, ?, ?)
+    `;
+    await db.promise().execute(insertQuery, [
+      BookingCourtID,
+      CourtID,
+      StudentID,
+      BookingCourtTime,
+      BookingCourtDate,
+    ]);
+
+    res.status(200).json({
+      message: 'Booking court added successfully!',
+      bookingCourtID: BookingCourtID,
+    });
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ message: 'Error adding booking court', error: err });
+  }
+});
+
+// API to fetch the booked times for the selected date
+app.get('/api/getBookedTimes', async (req, res) => {
+  const { courtID, date } = req.query;
+
+  if (!courtID || !date) {
+    return res.status(400).json({ message: 'CourtID and date are required.' });
+  }
+
+  try {
+    // Log the formatted date received from the client
+    console.log("Received Date:", date);
+
+    // Query to fetch all booked times for the selected court and date
+    const query = `
+      SELECT BookingCourtTime
+      FROM bookingcourt
+      WHERE CourtID = ? AND BookingCourtDate = ?
+    `;
+
+    const [rows] = await db.promise().execute(query, [courtID, date]);
+
+    // Check if there are booked times
+    if (rows.length === 0) {
+      return res.status(200).json({ bookedTimes: [] }); // Return an empty array if no bookings exist
+    }
+
+    // Split comma-separated times and flatten them into a single array
+    const bookedTimes = rows
+      .map(row => row.BookingCourtTime.split(',').map(time => time.trim())) // Split by commas and remove extra spaces
+      .flat(); // Flatten into a single array
+
+    // Return the booked times as a JSON response
+    res.status(200).json({ bookedTimes });
+  } catch (err) {
+    console.error("Database error:", err);
+    res.status(500).json({ message: 'Error fetching booked times', error: err });
+  }
+});

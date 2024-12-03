@@ -7,93 +7,160 @@ const BookCourtDate = () => {
   const navigate = useNavigate();
   const { CourtID } = useParams();
   const location = useLocation();
+  const [court, setCourt] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const { date: initialDate, times: initialTimes } = location.state || {};
+  const [locationName, setLocationName] = useState(null); // Location name
 
   const [selectedDate, setSelectedDate] = useState(initialDate || "");
   const [selectedTimes, setSelectedTimes] = useState(initialTimes || []);
   const [formattedDate, setFormattedDate] = useState("");
+  const [bookedTimes, setBookedTimes] = useState([]); // Store booked times
 
-  const predefinedTimes = [
-    "8:00-9:00 AM",
-    "9:00-10:00 AM",
-    "10:00-11:00 AM",
-    "11:00-12:00 PM",
-    "12:00-13:00 PM",
-    "13:00-14:00 PM",
-    "14:00-15:00 PM",
-    "15:00-16:00 PM",
-    "16:00-17:00 PM",
-    "17:00-18:00 PM",
-    "18:00-19:00 PM",
-    "19:00-20:00 PM",
-    "20:00-21:00 PM",
-    "21:00-22:00 PM",
-  ];
+  // Fetch court details
+  useEffect(() => {
+    const fetchCourtDetails = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`http://localhost:5000/api/courts/${CourtID}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch court details.");
+        }
+        const data = await response.json();
+        setCourt(data);
+  
+        if (data.CourtLocation) {
+          const [lat, lng] = data.CourtLocation.split(",").map(Number);
+          fetchLocationName(lat, lng);
+        }
+      } catch (err) {
+        console.error("Error fetching court details:", err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    const fetchInitialBookedTimes = async () => {
+      if (initialDate) {
+        const dateObject = new Date(initialDate);
+        const day = dateObject.getDate();
+        const month = dateObject.toLocaleString("en-GB", { month: "short" });
+        const year = dateObject.getFullYear();
+        const weekday = dateObject.toLocaleString("en-GB", { weekday: "long" });
+        const formattedDate = `${day} ${month} ${year}, ${weekday}`;
+  
+        setSelectedDate(initialDate); // Set the selected date
+        setFormattedDate(formattedDate); // Set formatted date
+        await fetchBookedTimes(formattedDate); // Fetch booked times
+      }
+    };
+  
+    fetchCourtDetails();
+    fetchInitialBookedTimes();
+  }, [CourtID]); // Only re-run when `CourtID` changes  
 
-  // Handle date change
-  const handleDateChange = (e) => {
-    const date = e.target.value;
-    setSelectedDate(date);
+  // Fetch location name from Mapbox API
+  const fetchLocationName = async (lat, lng) => {
+    const accessToken = "pk.eyJ1IjoibWhyYWZhZWwiLCJhIjoiY20zcG83ZDZiMGV0ejJrczgxaWJwN2g3YyJ9.wfWyzucTHcQkYjKJtjbVCw"; // Replace with a valid Mapbox access token
+    const apiUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${accessToken}`;
 
-    if (date) {
-      // Parse the selected date
-      const dateObject = new Date(date);
-
-      // Extract components for custom format
-      const day = dateObject.getDate(); // Day of the month
-      const month = dateObject.toLocaleString("en-GB", { month: "short" }); // Abbreviated month
-      const year = dateObject.getFullYear(); // Full year
-      const weekday = dateObject.toLocaleString("en-GB", { weekday: "long" }); // Day of the week
-
-      // Construct the desired format: "19 Oct 2024, Monday"
-      const formatted = `${day} ${month} ${year}, ${weekday}`;
-      setFormattedDate(formatted);
-    } else {
-      setFormattedDate(""); // Reset if no date selected
-      setSelectedTimes([]); // Reset selected times when date is cleared
+    try {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
+      if (data.features && data.features.length > 0) {
+        setLocationName(data.features[0].place_name); // Use the place name from Mapbox API
+      } else {
+        setLocationName(`${lat}, ${lng}`); // Fallback to coordinates if no name is found
+      }
+    } catch (error) {
+      console.error("Error fetching location name:", error);
+      setLocationName(`${lat}, ${lng}`); // Fallback to coordinates in case of an error
     }
   };
 
-  // Handle time selection
-  const handleTimeSelect = (time) => {
-    if (selectedTimes.includes(time)) {
-      setSelectedTimes(selectedTimes.filter((t) => t !== time)); // Deselect time
+  const predefinedTimes = [
+    "8:00 AM - 9:00 AM",
+    "9:00 AM - 10:00 AM",
+    "10:00 AM - 11:00 AM",
+    "11:00 AM - 12:00 PM",
+    "12:00 PM - 01:00 PM",
+    "01:00 PM - 02:00 PM",
+    "02:00 PM - 03:00 PM",
+    "03:00 PM - 04:00 PM",
+    "04:00 PM - 05:00 PM",
+    "05:00 PM - 06:00 PM",
+    "06:00 PM - 07:00 PM",
+    "07:00 PM - 08:00 PM",
+    "08:00 PM - 09:00 PM",
+    "09:00 PM - 10:00 PM",
+    "10:00 PM - 11:00 PM",
+    "11:00 PM - 12:00 AM",
+  ];
+
+  // Format selected date and fetch booked times
+  const handleDateChange = async (e) => {
+    const date = e.target.value;
+    setSelectedDate(date);
+    setSelectedTimes([]);
+
+    if (date) {
+      const dateObject = new Date(date);
+      const day = dateObject.getDate();
+      const month = dateObject.toLocaleString("en-GB", { month: "short" });
+      const year = dateObject.getFullYear();
+      const weekday = dateObject.toLocaleString("en-GB", { weekday: "long" });
+      setFormattedDate(`${day} ${month} ${year}, ${weekday}`);
+
+      // Fetch already booked times for this date
+      await fetchBookedTimes(`${day} ${month} ${year}, ${weekday}`);
     } else {
-      setSelectedTimes([...selectedTimes, time]); // Add selected time
+      setFormattedDate("");
+      setBookedTimes([]); // Reset booked times if date is cleared
+    }
+  };
+
+  // Fetch booked times for a selected date
+  const fetchBookedTimes = async (selectedDate) => {
+    console.log(`Formatted Date: ${selectedDate}`);
+
+    try {
+      const response = await fetch(
+        `http://localhost:5000/api/getBookedTimes?courtID=${CourtID}&date=${encodeURIComponent(selectedDate)}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch booked times.");
+      }
+      const data = await response.json();
+      console.log("Booked Times:", data.bookedTimes);
+      setBookedTimes(data.bookedTimes || []); // Ensure the API returns an array of booked times
+    } catch (err) {
+      console.error("Error fetching booked times:", err.message);
+    } 
+  };  
+
+  // Toggle time selection
+  const handleTimeSelect = (time) => {
+    if (!bookedTimes.includes(time)) {
+      setSelectedTimes((prev) =>
+        prev.includes(time) ? prev.filter((t) => t !== time) : [...prev, time]
+      );
     }
   };
 
   // Proceed to confirmation
   const handleProceed = () => {
-    setIsLoading(true); // Start loading animation
-    setTimeout(() => {
     if (!selectedDate || selectedTimes.length === 0) {
       alert("Please select both a date and at least one time slot.");
       return;
     }
-    navigate(`/book-confirmation/${CourtID}`, {
-      state: {
-        date: selectedDate,
-        times: selectedTimes,
-      },
-    });
-    setIsLoading(false); // Stop loading animation after navigation
-  }, 1000);
+    setIsLoading(true);
+    setTimeout(() => {
+      navigate(`/book-confirmation/${CourtID}`, {
+        state: { date: selectedDate, times: selectedTimes },
+      });
+      setIsLoading(false);
+    }, 1000);
   };
-
-  useEffect(() => {
-    // When the initialDate or selectedDate changes, format the date accordingly
-    if (selectedDate) {
-      const dateObject = new Date(selectedDate);
-      const day = dateObject.getDate(); // Day of the month
-      const month = dateObject.toLocaleString("en-GB", { month: "short" }); // Abbreviated month
-      const year = dateObject.getFullYear(); // Full year
-      const weekday = dateObject.toLocaleString("en-GB", { weekday: "long" }); // Day of the week
-      const formatted = `${day} ${month} ${year}, ${weekday}`;
-      setFormattedDate(formatted);
-    }
-  }, [selectedDate]);
 
   return (
     <div>
@@ -102,7 +169,6 @@ const BookCourtDate = () => {
           <div className="spinner"></div>
         </div>
       )}
-      {/* Header Banner */}
       <div
         className="header-banner"
         style={{
@@ -114,25 +180,18 @@ const BookCourtDate = () => {
       </div>
 
       <div className="book-court-container">
-        {/* Booking Steps */}
         <div className="booking-steps">
           <div className="step active">Booking Details</div>
           <div className="step">Confirmation</div>
           <div className="step">Done</div>
         </div>
 
-        {/* Booking Details */}
         <div className="booking-details-container">
-          {/* Booking Form */}
           <div className="booking-form">
             <h3>
               <span className="number-circle">1</span> Select a date
             </h3>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={handleDateChange}
-            />
+            <input type="date" value={selectedDate} onChange={handleDateChange} />
             {formattedDate && (
               <p>
                 <strong>Selected Date:</strong> {formattedDate}
@@ -142,7 +201,7 @@ const BookCourtDate = () => {
             <h3>
               <span
                 className={`number-circle ${
-                  selectedDate ? "number-circle" : "number-circle-none"
+                  selectedDate ? "" : "number-circle-none"
                 }`}
               >
                 2
@@ -154,13 +213,12 @@ const BookCourtDate = () => {
                 {predefinedTimes.map((time, index) => (
                   <button
                     key={index}
-                    className={`time-slot ${
-                      selectedTimes.includes(time) ? "selected" : ""
-                    }`}
+                    className={`time-slot ${selectedTimes.includes(time) ? "selected" : ""}`}
                     onClick={() => handleTimeSelect(time)}
+                    disabled={bookedTimes.includes(time)} // Disable if the time is already booked
                   >
                     {time}
-                  </button>
+                  </button>                
                 ))}
               </div>
             ) : (
@@ -178,23 +236,32 @@ const BookCourtDate = () => {
               {/* Details Section */}
               <div className="cart-details">
                 <p className="cart-sports">
-                  <strong>HANDBALL, HOCKEY, FUTSAL, DODGEBALL</strong>
+                  <strong>{court?.CourtDescription || "No description available"} </strong>
                 </p>
-                <p className="cart-location">Gelanggang Serbaguna UKM (Outdoor)</p>
+                <p className="cart-location">{court?.CourtName || "Unknown Venue"}</p>
                 <p className="cart-map">
                   <a
-                    href="https://maps.app.goo.gl/R1rnWL8kvUpdobXa8"
+                    href={
+                      court?.CourtLocation
+                        ? `https://www.google.com/maps?q=${encodeURIComponent(court.CourtLocation)}`
+                        : "#"
+                    }
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    <i className="fa fa-map-marker" aria-hidden="true"></i> View on Google Maps
+                    <i className="fa fa-map-marker" aria-hidden="true"></i>{" "}
+                    📍 {locationName || (court?.CourtLocation ? "Fetching location..." : "Location not available")}
                   </a>
                 </p>
               </div>
 
               {/* Image Section */}
               <div className="cart-image">
-                <img src={courtbanner} alt="Court" />
+                <img
+                  src={court?.CourtPic ? `http://localhost:5000/images/${court.CourtPic}` : "path/to/default/image.jpg"}
+                  alt={court?.CourtName || "Court Image"}
+                  className="image-preview"
+                />
               </div>
             </div>
 
@@ -203,17 +270,9 @@ const BookCourtDate = () => {
             {/* Booking Details Section */}
             {selectedDate && (
               <div className="booking-info">
-                <strong>Booking Details</strong>{" "}
-                {/* Dynamic Date and Time Section */}
-                <div className="date-section">
-                  <br />
-                  {formattedDate || "Not selected"}
-                </div>
-                <div className="date-time-section">
-                  {selectedTimes.length > 0
-                    ? selectedTimes.join(", ")
-                    : "Not selected"}
-                </div>
+                <strong>Booking Details</strong>
+                <p>{formattedDate || "Not selected"}</p>
+                <p>{selectedTimes.length > 0 ? selectedTimes.join(", ") : "Not selected"}</p>
               </div>
             )}
             <br />
