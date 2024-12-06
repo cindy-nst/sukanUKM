@@ -24,6 +24,8 @@ import BookEquipment from '../SportEquipment/BookEquipment';
 import ReportPage from '../Report/ReportPage';
 import ReportVenues from '../Report/ReportVenues';
 import ReportEquipment from '../Report/ReportEquipment';
+import BookingHistory from '../History/BookingHistory';
+import BookingHistoryDetail from '../History/BookingHistoryDetail';
 import { UserContext } from '../UserContext'; // Assuming this is where your UserContext is defined
 
 import './App.css';
@@ -60,6 +62,9 @@ function App() {
         <Route path="/report" element={<ReportPage />} />
         <Route path="/report-venue" element={<ReportVenues />} />
         <Route path="/report-equipment" element={<ReportEquipment />} />
+        <Route path="/booking-history" element={<BookingHistory />} />
+        <Route path="/booking-history-detail/:BookingID" element={<BookingHistoryDetail />} />
+
         {/* Add other routes as needed */}
       </Routes>
     </div>

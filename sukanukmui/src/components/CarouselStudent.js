@@ -21,7 +21,6 @@ const CarouselStudent = () => {
 
   return (
     <div className="carousel-container">
-      <button className="carousel-arrow left">&lt;</button>
       <div className="carousel-cards">
         {cards.map((card, index) => (
           <Card
@@ -32,7 +31,6 @@ const CarouselStudent = () => {
           />
         ))}
       </div>
-      <button className="carousel-arrow right">&gt;</button>
     </div>
   );
 };

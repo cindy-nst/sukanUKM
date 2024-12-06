@@ -101,9 +101,6 @@ const Venues = () => {
         </button>
       </div>
 
-      <button className="fab" onClick={handleAddVenue}>
-        <FaPlus />
-      </button>
     </div>
   );
 };
