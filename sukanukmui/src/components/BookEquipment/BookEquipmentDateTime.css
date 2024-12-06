@@ -18,7 +18,7 @@
 }
 
 /* Main container */
-.book-court-container {
+.book-equipment-container {
   font-family: Arial, sans-serif;
   margin: 20px auto;
   max-width: 1200px;
@@ -199,25 +199,27 @@ h1 {
   flex: 1;
 }
 
-.cart-sports {
+.cart-availability {
   font-weight: bold;
   font-size: 12px;
   color: #007bff;
+  margin-bottom: 8px;
 }
 
-.cart-location {
+.cart-equipment {
   font-weight: bolder;
   font-size: 1em;
   color: #16056B;
+  margin:0
 }
 
-.cart-map a {
+.cart-quantity a {
   font-size: 0.6em;
   color: #007bff;
   text-decoration: none;
 }
 
-.cart-map a:hover {
+.cart-quantity a:hover {
   text-decoration: underline;
 }
 
@@ -235,6 +237,25 @@ h1 {
   height: 100%;
   object-fit: cover; /* Ensures the image covers the container while maintaining its aspect ratio */
   border-radius: 8px;
+}
+
+.cart-owner {
+  margin-top: 20px;
+}
+
+.cart-owner-label {
+  font-size: 16px;
+  font-weight: normal;
+  color: #240D5A; /* Dark purple */
+  display: inline-block;
+  margin-right: 5px; /* Space between label and name */
+}
+
+.cart-owner-name {
+  font-size: 16px;
+  font-weight: normal;
+  color: black;
+  display: inline-block;
 }
 
 /* Divider */
@@ -256,7 +277,19 @@ h1 {
   color: #16056B;
 }
 
-.date-time-section {
+.book-date-section {
+  font-size: 0.9em;
+  font-weight: lighter;
+  color: black;
+}
+
+.return-date-section {
+  font-size: 0.9em;
+  font-weight: lighter;
+  color: black;
+}
+
+.quantity-section {
   font-size: 0.9em;
   font-weight: lighter;
   color: black;

@@ -12,12 +12,18 @@ import Navbar from '../Navbar';
 import AddVenue from '../Venues/AddVenue';
 import BookCourt from '../BookCourt/BookCourt';
 import BookCourtDate from '../BookCourt/BookCourtDate';
+import BookEquipmentDateTime from '../BookEquipment/BookEquipmentDateTime';
+import BookEquipmentConfirmation from '../BookEquipment/BookEquipmentConfirmation';
 import BookConfirmation from '../BookCourt/BookConfirmation';
+import BookEquipmentDone from '../BookEquipment/BookEquipmentDone';
 import BookDone from '../BookCourt/BookingDone';
 import EditVenue from '../Venues/EditVenue';
 import AddSportEquipment from '../SportEquipment/AddSportEquipement';
 import EquipmentDetails from '../EditSportEquipment/EquipmentDetails';
 import BookEquipment from '../SportEquipment/BookEquipment';
+import ReportPage from '../Report/ReportPage';
+import ReportVenues from '../Report/ReportVenues';
+import ReportEquipment from '../Report/ReportEquipment';
 import { UserContext } from '../UserContext'; // Assuming this is where your UserContext is defined
 
 import './App.css';
@@ -42,12 +48,18 @@ function App() {
         <Route path="/add-venue" element={<AddVenue />} />
         <Route path="/book-court" element={<BookCourt />} />
         <Route path="/book/:CourtID" element={<BookCourtDate />} />
+        <Route path="/book-equipment/:ItemID" element={<BookEquipmentDateTime />} />
+        <Route path="/book-equipment-confirmation/:ItemID" element={<BookEquipmentConfirmation />} />
+        <Route path="/book-equipment-done/:ItemID" element={<BookEquipmentDone />} />
         <Route path="/book-confirmation/:CourtID" element={<BookConfirmation />} />
         <Route path="/book-done/:CourtID" element={<BookDone />} />
         <Route path="/edit-venue/:CourtID" element={<EditVenue />} />
         <Route path="/add-sportequipment" element={<AddSportEquipment />} />
         <Route path="/equipment/details/:ItemID" element={<EquipmentDetails />} />
         <Route path="/book-equipment" element={<BookEquipment />} />
+        <Route path="/report" element={<ReportPage />} />
+        <Route path="/report-venue" element={<ReportVenues />} />
+        <Route path="/report-equipment" element={<ReportEquipment />} />
         {/* Add other routes as needed */}
       </Routes>
     </div>

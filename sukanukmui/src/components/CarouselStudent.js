@@ -10,7 +10,7 @@ const CarouselStudent = () => {
     {
       title: "Book Equipment",
       image: equipment,
-      to: "/sportequipment"
+      to: "/book-equipment"
     },
     {
       title: "Book Court",
