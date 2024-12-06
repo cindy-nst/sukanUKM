@@ -1,62 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
 import './BookingHistory.css';
 
 const BookingHistory = () => {
   const navigate = useNavigate();
+  const [bookings, setBookings] = useState([]); // Initial state is an empty array
+  const [error, setError] = useState(null); // For error handling
 
-  // Dummy data for booking history
-  const dummyBookings = [
-    {
-      BookingID: 1,
-      Image: "futsal_court.jpg",
-      Title: "KPZ Court Futsal",
-      Date: "30 Oct 2024",
-      Venue: "Venue: KPZ Court Futsal"
-    },
-    {
-      BookingID: 2,
-      Image: "futsal_court.jpg",
-      Title: "KPZ Court Futsal",
-      Date: "19 Oct 2024",
-      Venue: "Venue: KPZ Court Futsal"
-    },
-    {
-      BookingID: 3,
-      Image: "outdoor_court.jpg",
-      Title: "Gelanggang Serbaguna UKM (Outdoor)",
-      Date: "11 Oct 2024",
-      Venue: "Venue: Gelanggang Serbaguna UKM (Outdoor)"
-    },
-    {
-      BookingID: 4,
-      Image: "handball.jpg",
-      Title: "Handball Molten Size 3",
-      Date: "27 Sept 2024",
-      Venue: "Equipment: Handball Molten Size 3"
-    },
-    {
-      BookingID: 5,
-      Image: "badminton_racket.jpg",
-      Title: "Badminton Racket",
-      Date: "10 Sept 2024",
-      Venue: "Equipment: Badminton Racket"
-    },
-    {
-      BookingID: 6,
-      Image: "stadium_ukm.jpg",
-      Title: "Stadium UKM",
-      Date: "17 Oct 2023",
-      Venue: "Venue: Stadium UKM"
-    },
-  ];
+  // Fetch bookings from the backend
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/getBookingHistory'); // Updated API URL
+        if (!response.ok) {
+          throw new Error('Failed to fetch bookings');
+        }
+        const data = await response.json();
+        setBookings(data); // Update state with the fetched bookings
+      } catch (err) {
+        setError(err.message); // Handle any errors
+      }
+    };
 
-  const [bookings] = useState(dummyBookings);
+    fetchBookings();
+  }, []); // Empty dependency array to run only once when the component mounts
 
   const handleViewDetails = (booking) => {
     // Navigate to the HistoryDetails page and pass the booking details
-    navigate('/booking-history-detail/${booking.BookingID}', { state: { bookingDetail: booking } });
+    navigate(`/booking-history-detail/${booking.BookingCourtID}`);
   };
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
 
   return (
     <div className="booking-history-container">
@@ -71,17 +47,18 @@ const BookingHistory = () => {
             <p>No bookings found</p>
           ) : (
             bookings.map((booking) => (
-              <div key={booking.BookingID} className="booking-card">
+              <div key={booking.BookingCourtID} className="booking-card">
                 <div className="booking-image">
+                  {/* Use CourtPic from the response */}
                   <img
-                    src={`http://localhost:5000/images/${booking.Image}`} // Replace with actual image URL
-                    alt={booking.Title}
+                    src={`http://localhost:5000/images/${booking.CourtPic}`} // Dynamic image path
+                    alt={booking.CourtName}
                   />
                 </div>
                 <div className="booking-info">
-                  <h3 className="booking-title">{booking.Title}</h3>
-                  <p className="booking-date">{booking.Date}</p>
-                  <p className="booking-venue">{booking.Venue}</p>
+                  <h3 className="booking-title">{booking.CourtName}</h3>
+                  <p className="booking-date">{booking.BookingCourtDate}</p>
+                  <p className="booking-venue">{booking.StudentName}</p>
                   <button
                     className="view-button"
                     onClick={() => handleViewDetails(booking)}

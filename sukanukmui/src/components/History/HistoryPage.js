@@ -10,7 +10,7 @@ const HistoryPage = () => {
 
   // Handlers for navigating to different pages
   const handleVenueNavigation = () => {
-    navigate("/report-venue");
+    navigate("/booking-history");
   };
 
   const handleEquipmentNavigation = () => {

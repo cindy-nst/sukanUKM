@@ -282,8 +282,6 @@ app.delete('/api/courts/:id', (req, res) => {
   });
 });
 
-// Add this endpoint to your server file
-
 // In your server.js file, update the PUT endpoint:
 app.put('/api/sportequipment/:ItemID', upload.single('sportImage'), async (req, res) => {
   const { ItemID } = req.params;
@@ -383,7 +381,6 @@ app.put('/api/sportequipment/:ItemID', upload.single('sportImage'), async (req, 
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
-
 
 //for Add Court
 app.post('/api/add-court', upload.single('courtImage'), (req, res) => {
@@ -520,7 +517,6 @@ app.put('/api/courts/:CourtID', upload.single('courtImage'), async (req, res) =>
   }
 });
 
-
 // API Endpoint to Add Equipment
 app.post("/api/add-equipment", upload.single("SportPic"), (req, res) => {
   const { ItemID, ItemName, ItemQuantity } = req.body;
@@ -560,7 +556,6 @@ app.post("/api/add-equipment", upload.single("SportPic"), (req, res) => {
   });
 });
 
-
 // API Endpoint to Retrieve User Profile
 app.get("/api/profile", (req, res) => {
   const { userId, role } = req.query;
@@ -599,7 +594,6 @@ app.get("/api/profile", (req, res) => {
 });
 
 //DELETE SPORT EQUIPMENT
-
 app.delete('/api/sportequipment/:id', (req, res) => {
   const { id } = req.params;
 
@@ -618,10 +612,8 @@ app.delete('/api/sportequipment/:id', (req, res) => {
   });
 });
 
-
 // For Add Booking Court
 const { v4: uuidv4 } = require('uuid'); // Install UUID with `npm install uuid`
-
 app.post('/api/addBookingCourt', async (req, res) => {
   const { CourtID, StudentID, BookingCourtTime, BookingCourtDate } = req.body;
 
@@ -665,73 +657,64 @@ app.post('/api/addBookingCourt', async (req, res) => {
   }
 });
 
-// API to fetch the booked times for the selected date
-app.get('/api/getBookedTimes', async (req, res) => {
-  const { courtID, date } = req.query;
+// API fetch booking details by BookingID
+app.get('/api/booking/:BookingID', async (req, res) => { // Accepts :BookingID in the URL
+  const { BookingID } = req.params; // Get the BookingID from the route
 
-  if (!courtID || !date) {
-    return res.status(400).json({ message: 'CourtID and date are required.' });
-  }
+  const query = `
+    SELECT bc.BookingCourtID, bc.BookingCourtTime, bc.BookingCourtDate, c.CourtName, s.StudentName
+    FROM bookingcourt bc
+    JOIN court c ON bc.CourtID = c.CourtID
+    JOIN student s ON bc.StudentID = s.StudentID
+    WHERE bc.BookingCourtID = ?;
+  `;
 
   try {
-    // Log the formatted date received from the client
-    console.log("Received Date:", date);
+    const [rows] = await db.promise().execute(query, [BookingID]);
 
-    // Query to fetch all booked times for the selected court and date
-    const query = `
-      SELECT BookingCourtTime
-      FROM bookingcourt
-      WHERE CourtID = ? AND BookingCourtDate = ?
-    `;
-
-    const [rows] = await db.promise().execute(query, [courtID, date]);
-
-    // Check if there are booked times
     if (rows.length === 0) {
-      return res.status(200).json({ bookedTimes: [] }); // Return an empty array if no bookings exist
+      return res.status(404).json({ error: 'Booking not found' });
     }
 
-    // Split comma-separated times and flatten them into a single array
-    const bookedTimes = rows
-      .map(row => row.BookingCourtTime.split(',').map(time => time.trim())) // Split by commas and remove extra spaces
-      .flat(); // Flatten into a single array
-
-    // Return the booked times as a JSON response
-    res.status(200).json({ bookedTimes });
+    const bookingDetail = rows[0]; // Assuming the result has only one row
+    res.json({
+      BookingCourtID: bookingDetail.BookingCourtID,
+      BookingCourtTime: bookingDetail.BookingCourtTime,
+      BookingCourtDate: bookingDetail.BookingCourtDate,
+      CourtName: bookingDetail.CourtName,
+      StudentName: bookingDetail.StudentName,
+    });
   } catch (err) {
-    console.error("Database error:", err);
-    res.status(500).json({ message: 'Error fetching booked times', error: err });
+    console.error('Database query error:', err.stack);
+    res.status(500).json({ error: 'Failed to fetch booking details' });
   }
-  app.get('/api/bookingcourthistories', async (req, res) => {
-    const query =` 
-      SELECT 
-        bc.BookingCourtID,
-        bc.CourtID,
-        c.CourtName, 
-        bc.StudentID,
-        s.StudentName,  -- Fetching StudentName from student table
-        bc.BookingCourtDate,
-        bc.BookingCourtTime
-      FROM 
-        bookingcourt AS bc
-      JOIN 
-        court AS c ON bc.CourtID = c.CourtID
-      JOIN 
-        student AS s ON bc.StudentID = s.StudentID  -- Joining student table to fetch StudentName
-      ORDER BY 
-        bc.BookingCourtDate DESC, bc.BookingCourtTime ASC`
-    ;
-  
-    try {
-      const [results] = await db.execute(query);
-      if (results.length > 0) {
-        res.status(200).json(results);
-      } else {
-        res.status(404).json({ message: 'No booking court histories found.' });
-      }
-    } catch (err) {
-      console.error('Database error:', err);
-      res.status(500).json({ message: 'Database error', error: err });
+});
+
+// Backend API endpoint to fetch booking history
+app.get('/api/getBookingHistory', async (req, res) => {
+  const query = `
+    SELECT 
+      bc.BookingCourtID, 
+      bc.BookingCourtTime, 
+      bc.BookingCourtDate, 
+      c.CourtName, 
+      c.CourtPic,
+      s.StudentName
+    FROM bookingcourt bc
+    JOIN court c ON bc.CourtID = c.CourtID
+    JOIN student s ON bc.StudentID = s.StudentID;
+  `;
+
+  try {
+    const [rows] = await db.promise().execute(query);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'No bookings found' });
     }
-  });
+
+    res.json(rows);
+  } catch (err) {
+    console.error('Database query error:', err.stack);
+    res.status(500).json({ error: 'Failed to fetch booking history' });
+  }
 });
