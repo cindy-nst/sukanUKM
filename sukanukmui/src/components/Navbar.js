@@ -29,6 +29,11 @@ const Navbar = () => {
       <Link to="/sportequipment">Equipments</Link>;
   };
   
+  const getReportLink = () => {
+    return user?.role === 'Student' ?
+    <Link to="/historypage">History</Link> :
+    <Link to="/report">Report</Link>;
+  };
 
   return (
     <nav className="navbar">
@@ -46,7 +51,7 @@ const Navbar = () => {
           <Link to="/home">Explore</Link>
           {getVenueLink()}
           {getEquipmentLink()}
-          <Link to="/report">Report</Link>
+          {getReportLink()}
         </div>
       )}
 
