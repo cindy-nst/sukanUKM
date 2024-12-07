@@ -5,12 +5,34 @@ import "./BookEquipmentDateTime.css"; // Importing CSS
 
 const BookEquipmentDateTime = () => {
   const navigate = useNavigate();
-
   const { ItemID } = useParams();
+
+  const [item, setItem] = useState(null); // Store equipment details
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedReturnDate, setSelectedReturnDate] = useState("");
-  const [formattedDate, setFormattedDate] = useState("");
   const [quantity, setQuantity] = useState(1); // Quantity state
+  const [isLoading, setIsLoading] = useState(true); // Loading state
+
+  useEffect(() => {
+    // Fetch equipment details from the database
+    const fetchItem = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`http://localhost:5000/api/sportequipment/${ItemID}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch item details.");
+        }
+        const data = await response.json();
+        setItem(data);
+      } catch (error) {
+        console.error("Error fetching item details:", error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchItem();
+  }, [ItemID]);
 
   // Handle quantity change
   const handleQuantityChange = (e) => {
@@ -20,7 +42,7 @@ const BookEquipmentDateTime = () => {
     }
   };
 
-  // Function to format the date
+  // Format the date
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const dateObject = new Date(dateString);
@@ -31,13 +53,20 @@ const BookEquipmentDateTime = () => {
     return `${day} ${month} ${year}, ${weekday}`;
   };
 
-
+  // Proceed to confirmation page
   const handleProceed = () => {
-  // (e.g., navigate to a form to confirmation equipment)
+    if (!selectedDate || !selectedReturnDate || quantity <= 0) {
+      alert("Please fill in all the required fields.");
+      return;
+    }
     navigate(`/book-equipment-confirmation/${ItemID}`, {
       state: { date: selectedDate, returndate: selectedReturnDate, quantity },
     });
   };
+
+  if (isLoading) {
+    return <div className="loading">Loading...</div>;
+  }
 
   return (
     <div>
@@ -63,85 +92,71 @@ const BookEquipmentDateTime = () => {
             <h3>
               <span className="number-circle">1</span> Select a date
             </h3>
-            <input type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}  />
-            {formattedDate && (
-              <p>
-                <strong>Selected Date:</strong> {formattedDate}
-              </p>
-            )}
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
 
             <h3>
-              <span
-                className={`number-circle ${
-                  selectedDate.length > 0 ? "" : "number-circle-none"
-                }`}
-              >
+              <span className={`number-circle ${selectedDate ? "" : "number-circle-none"}`}>
                 2
               </span>{" "}
               Select a Return Date
-              </h3>
-              {selectedDate.length > 0 ? ( // Ensure Step 2 input is only accessible after Step 1 is done
-                <input
-                  type="date"
-                  value={selectedReturnDate}
-                  onChange={(e) => setSelectedReturnDate(e.target.value)} // Update selectedReturnDate
-                />
-              ) : (
-                <p className="time-message">
-                  Please select a date before choosing a return date.
-                </p>
-              )}
-              
-              <h3>
-                <span
-                    className={`number-circle ${
-                    selectedReturnDate.length > 0 ? "" : "number-circle-none"
-                    }`}
-                >
-                    3
-                </span>{" "}
-                Select Quantity
-                </h3>
-                {selectedReturnDate.length > 0 ? (
-                <input
-                    type="number"
-                    value={quantity}
-                    onChange={handleQuantityChange}
-                    min="1"
-                    placeholder="Enter quantity"
-                />
-                ) : (
-                <p className="time-message">
-                    Please select a return date before entering the quantity.
-                </p>
-                )}
-            </div>
+            </h3>
+            {selectedDate ? (
+              <input
+                type="date"
+                value={selectedReturnDate}
+                onChange={(e) => setSelectedReturnDate(e.target.value)}
+              />
+            ) : (
+              <p className="time-message">Please select a date before choosing a return date.</p>
+            )}
+
+            <h3>
+              <span className={`number-circle ${selectedReturnDate ? "" : "number-circle-none"}`}>
+                3
+              </span>{" "}
+              Select Quantity
+            </h3>
+            {selectedReturnDate ? (
+              <input
+                type="number"
+                value={quantity}
+                onChange={handleQuantityChange}
+                min="1"
+              />
+            ) : (
+              <p className="time-message">
+                Please select a return date before entering the quantity.
+              </p>
+            )}
+          </div>
 
           {/* My Cart Section */}
           <div className="my-cart">
             <h2>My Cart</h2>
             <div className="divider"></div>
             <div className="cart-content">
-              {/* Details Section */}
               <div className="cart-details">
                 <p className="cart-availability">
-                  <strong>Availability: 14 </strong>
+                  <strong>Availability:</strong> {item?.ItemQuantity  || "N/A"}
                 </p>
-                <p className="cart-equipment"><strong>Badminton Racket </strong></p>
-                <div class="cart-owner">
-                  <span class="cart-owner-label">Hak Milik:</span>
-                  <span class="cart-owner-name">Pusat Sukan Universiti Kebangsaan Malaysia</span>
+                <p className="cart-equipment">
+                  <strong>{item?.ItemName || "Unknown Equipment"}</strong>
+                </p>
+                <div className="cart-owner">
+                  <span className="cart-owner-label">Hak Milik:</span>
+                  <span className="cart-owner-name">Pusat Sukan Universiti Kebangsaan Malaysia</span>
+
                 </div>
               </div>
 
-              {/* Image Section */}
               <div className="cart-image">
-                <img
-                  src={"https://via.placeholder.com/150"} // Replace with actual image URL
-                  alt="Badminton Racket"
-                  className="image-preview"
+              <img
+                  src={`http://localhost:5000/images/${item.SportPic}`} // Assuming the equipment image is served from the backend
+                  alt={item.ItemName}
                 />
               </div>
             </div>
@@ -164,11 +179,7 @@ const BookEquipmentDateTime = () => {
               </div>
             )}
             <br />
-            {/* Proceed Button */}
-            <button
-              className="proceed-button"
-              onClick={handleProceed}
-            >
+            <button className="proceed-button" onClick={handleProceed}>
               Proceed
             </button>
           </div>

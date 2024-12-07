@@ -245,7 +245,7 @@ app.get('/api/sportequipment', (req, res) => {
 });
 
 
-// API endpoint to fetch court details by ID
+
 app.get('/api/sportequipment/:id', (req, res) => {
   const { id } = req.params;
   const query = 'SELECT * FROM sportequipment WHERE ItemID = ?';
@@ -656,6 +656,58 @@ app.post('/api/addBookingCourt', async (req, res) => {
     res.status(500).json({ message: 'Error adding booking court', error: err });
   }
 });
+
+// For Add Booking Equipment
+app.post('/api/addBookingEquipment', async (req, res) => {
+  const { ItemID, StudentID, BookingItemDate, BookingItemReturnedDate, BookingItemQuantity } = req.body;
+
+  // Check if all required fields are provided
+  if (!ItemID || !StudentID || !BookingItemDate || !BookingItemReturnedDate || !BookingItemQuantity) {
+    return res.status(400).json({ message: 'All fields are required.' });
+  }
+
+  try {
+    // Fetch the latest BookingEquipmentID (get the highest number and increment it)
+    const selectQuery = 'SELECT BookingItemID FROM bookingsportequipment ORDER BY BookingItemID DESC LIMIT 1';
+    const [rows] = await db.promise().execute(selectQuery);
+
+    let newBookingID = 'BSE001'; // Default in case no booking exists yet
+
+    if (rows.length > 0) {
+      // Extract the last number, and increment it
+      const lastBookingID = rows[0].BookingItemID;
+      const lastNumber = parseInt(lastBookingID.substring(3), 10);
+      const newNumber = lastNumber + 1;
+
+      // Generate new BookingEquipmentID (BSExxx format)
+      newBookingID = 'BSE' + newNumber.toString().padStart(3, '0');
+    }
+
+    // Insert the new booking record into the database
+    const insertQuery = 
+      'INSERT INTO bookingsportequipment (BookingItemID, ItemID, StudentID, BookingItemDate, BookingItemReturnedDate, BookingItemQuantity) ' +
+      'VALUES (?, ?, ?, ?, ?, ?)';
+    
+    await db.promise().execute(insertQuery, [
+      newBookingID,
+      ItemID,
+      StudentID,
+      BookingItemDate,
+      BookingItemReturnedDate,
+      BookingItemQuantity
+    ]);
+
+    res.status(200).json({
+      message: 'Booking equipment added successfully!',
+      bookingItemID: newBookingID,
+    });
+  } catch (err) {
+    console.error('Database error:', err);
+    res.status(500).json({ message: 'Error adding booking equipment', error: err });
+  }
+});
+
+
 
 // API fetch booking details by BookingID
 app.get('/api/booking/:BookingID', async (req, res) => { // Accepts :BookingID in the URL
