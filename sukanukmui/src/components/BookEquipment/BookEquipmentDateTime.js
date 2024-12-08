@@ -1,24 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom"; // Ensure useLocation is imported
 import equipmentBanner from "../../images/equipment.jpg"; // Importing banner image
 import "./BookEquipmentDateTime.css"; // Importing CSS
 
 const BookEquipmentDateTime = () => {
   const navigate = useNavigate();
+  const location = useLocation(); // Use useLocation to get the state passed via navigate
+  const { date, returndate, quantity } = location.state || {}; // Destructure state values (if present)
+
   const { ItemID } = useParams();
-
   const [item, setItem] = useState(null); // Store equipment details
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedReturnDate, setSelectedReturnDate] = useState("");
-  const [quantity, setQuantity] = useState(1); // Quantity state
+  const [selectedDate, setSelectedDate] = useState(date || ""); // Default to passed `date`
+  const [selectedReturnDate, setSelectedReturnDate] = useState(returndate || ""); // Default to passed `returndate`
+  const [quantityState, setQuantity] = useState(quantity || 1); // Default to passed `quantity`
   const [isLoading, setIsLoading] = useState(true); // Loading state
-
+  
   useEffect(() => {
     // Fetch equipment details from the database
     const fetchItem = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`http://localhost:5000/api/sportequipment/${ItemID}`);
+        const response = await fetch(`http://localhost:5000/api/availabilitysportequipment/${ItemID}`);
         if (!response.ok) {
           throw new Error("Failed to fetch item details.");
         }
@@ -37,8 +39,10 @@ const BookEquipmentDateTime = () => {
   // Handle quantity change
   const handleQuantityChange = (e) => {
     const newQuantity = parseInt(e.target.value, 10);
-    if (newQuantity > 0) {
+    if (newQuantity > 0 && newQuantity <= (item?.AvailableQuantity || 0)) {
       setQuantity(newQuantity);
+    } else {
+      alert("Quantity exceeds availability.");
     }
   };
 
@@ -55,12 +59,12 @@ const BookEquipmentDateTime = () => {
 
   // Proceed to confirmation page
   const handleProceed = () => {
-    if (!selectedDate || !selectedReturnDate || quantity <= 0) {
+    if (!selectedDate || !selectedReturnDate || quantityState <= 0) {
       alert("Please fill in all the required fields.");
       return;
     }
     navigate(`/book-equipment-confirmation/${ItemID}`, {
-      state: { date: selectedDate, returndate: selectedReturnDate, quantity },
+      state: { date: selectedDate, returndate: selectedReturnDate, quantity: quantityState },
     });
   };
 
@@ -123,9 +127,10 @@ const BookEquipmentDateTime = () => {
             {selectedReturnDate ? (
               <input
                 type="number"
-                value={quantity}
+                value={quantityState}
                 onChange={handleQuantityChange}
                 min="1"
+                max={item?.AvailableQuantity}
               />
             ) : (
               <p className="time-message">
@@ -141,7 +146,7 @@ const BookEquipmentDateTime = () => {
             <div className="cart-content">
               <div className="cart-details">
                 <p className="cart-availability">
-                  <strong>Availability:</strong> {item?.ItemQuantity  || "N/A"}
+                  <strong>Availability:</strong> {item?.AvailableQuantity || "0"}
                 </p>
                 <p className="cart-equipment">
                   <strong>{item?.ItemName || "Unknown Equipment"}</strong>
@@ -149,14 +154,13 @@ const BookEquipmentDateTime = () => {
                 <div className="cart-owner">
                   <span className="cart-owner-label">Hak Milik:</span>
                   <span className="cart-owner-name">Pusat Sukan Universiti Kebangsaan Malaysia</span>
-
                 </div>
               </div>
 
               <div className="cart-image">
-              <img
-                  src={`http://localhost:5000/images/${item.SportPic}`} // Assuming the equipment image is served from the backend
-                  alt={item.ItemName}
+                <img
+                  src={`http://localhost:5000/images/${item?.SportPic}`} // Assuming the equipment image is served from the backend
+                  alt={item?.ItemName}
                 />
               </div>
             </div>
@@ -174,7 +178,7 @@ const BookEquipmentDateTime = () => {
                   <strong>Selected Return Date:</strong> {formatDate(selectedReturnDate)}
                 </p>
                 <p>
-                  <strong>Quantity:</strong> {quantity}
+                  <strong>Quantity:</strong> {quantityState}
                 </p>
               </div>
             )}
