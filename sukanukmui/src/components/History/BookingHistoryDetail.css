@@ -1,3 +1,18 @@
+.header-banner {
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  color: white;
+}
+
+.heading-1 {
+  font-size: 2.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+} 
+
 .booking-detail-container {
     font-family: Arial, sans-serif;
     text-align: center;
@@ -42,4 +57,16 @@
     color: red;
     font-size: 18px;
     margin: 20px;
+  }
+
+  .booking-id-box {
+    margin-top: 20px;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    text-align: center;
+    background-color: #f9f9f9;
+    font-weight: bold;
+    font-size: 1.2rem;
+    color: #333;
   }

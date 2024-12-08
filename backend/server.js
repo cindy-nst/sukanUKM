@@ -761,6 +761,43 @@ app.get('/api/getBookingHistory', async (req, res) => {
   }
 });
 
+// // Backend API endpoint to fetch booking item history (WORK ON THIS)
+// app.get('/api/getBookingItemHistory', async (req, res) => {
+//   const { UserID } = req.query; // Retrieve UserID from query parameters
+
+//   if (!UserID) {
+//     return res.status(400).json({ error: 'UserID is required' });
+//   }
+
+//   const query = `
+//     SELECT 
+//       bs.BookingItemID, 
+//       bs.BookingItemDate, 
+//       bs.BookingItemReturnedDate,
+//       bs.BookingItemQuantity, 
+//       se.ItemName, 
+//       se.SportPic,
+//       s.StudentName
+//     FROM bookingsportequipment bs
+//     JOIN sportequipment se ON bs.ItemID = se.ItemID
+//     JOIN student s ON bs.StudentID = s.StudentID
+//     WHERE s.StudentID = ?; -- Filter by UserID
+//   `;
+
+//   try {
+//     const [rows] = await db.promise().execute(query, [UserID]);
+
+//     if (rows.length === 0) {
+//       return res.json([]); // Return an empty array instead of a 404 status
+//     }
+
+//     res.json(rows); // Return the fetched rows
+//   } catch (err) {
+//     console.error('Database query error:', err.stack);
+//     res.status(500).json({ error: 'Failed to fetch item history' });
+//   }
+// });
+
 app.post('/api/addBookingEquipment', async (req, res) => {
   const { ItemID, StudentID, BookingItemDate, BookingItemReturnedDate, BookingItemQuantity } = req.body;
 
