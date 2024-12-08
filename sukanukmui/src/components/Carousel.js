@@ -21,7 +21,7 @@ const Carousel = () => {
     {
       title: "View Booking Report",
       image: report,
-      to: "/booking-report"
+      to: "/report"
     }
   ];
 

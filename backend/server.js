@@ -909,3 +909,57 @@ app.get('/api/availabilitysportequipment/:id', async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 });
+
+
+//For Report UKMSportDepartment court
+app.get('/api/bookingcourt', async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        b.BookingCourtID, 
+        b.CourtID, 
+        c.CourtName,
+        b.StudentID, 
+        b.BookingCourtTime, 
+        b.BookingCourtDate, 
+        s.StudentName, 
+        s.StudentEmail, 
+        s.StudentPhoneNumber 
+      FROM bookingcourt b
+      JOIN student s ON b.StudentID = s.StudentID
+      INNER JOIN court c ON b.CourtID = c.CourtID`;
+
+    const [rows] = await db.promise().query(query);
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching booking data:", error);
+    res.status(500).send("Error fetching booking data");
+  }
+});
+
+// For Report UKMSportDepartment equipment
+app.get('/api/bookingequipment', async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        bse.BookingItemID, 
+        bse.ItemID, 
+        e.ItemName,
+        bse.BookingItemDate, 
+        bse.BookingItemReturnedDate, 
+        bse.BookingItemQuantity, 
+        s.StudentName, 
+        s.StudentEmail, 
+        s.StudentPhoneNumber
+      FROM bookingsportequipment bse
+      JOIN student s ON bse.StudentID = s.StudentID
+      INNER JOIN sportequipment e ON bse.ItemID = e.ItemID`;  // Join with the equipment table
+    
+    console.log("Executing query:", query);  // Log the query being executed
+    const [rows] = await db.promise().query(query);
+    res.json(rows);  // Ensure ItemName is included in the response
+  } catch (error) {
+    console.error("Error fetching booking data:", error.message || error);
+    res.status(500).send("Error fetching booking data: " + (error.message || error));
+  }
+});

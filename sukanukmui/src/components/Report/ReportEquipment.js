@@ -1,175 +1,150 @@
-import React, { useState } from "react";
-import "./ReportVenues.css";
+import React, { useState, useEffect } from "react";
+import "./ReportEquipment.css";
 
-const ReportVenues = () => {
+// Helper function to format the date in dd-mm-yyyy format
+const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0'); // months are zero-based
+  const year = date.getFullYear();
+  return `${day}-${month}-${year}`;
+};
 
+const ReportEquipment = () => {
+  const [equipmentBookings, setEquipmentBookings] = useState([]);
   const [selectedDate, setSelectedDate] = useState("");
-  const [filterDate, setFilterDate] = useState("");
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
+  const [loading, setLoading] = useState(true);
 
-  // Sample data for venue bookings
-  const venueBookings = [
-    {
-      bookingID: "21102",
-      name: "Muhammad Akmal",
-      equipment: "Badminton Racket",
-      dateBooked: "3/10/2024",
-      returnBooked: "5/10/2024",
-      quantity: "2",
-      email: "akmal@siswa.ukm.edu.my",
-      phone: "0192345678",
-    },
-    {
-      bookingID: "31200",
-      name: "Sarah Ali",
-      equipment: "Badminton Racket",
-      dateBooked: "3/10/2024",
-      returnBooked: "5/10/2024",
-      quantity: "2",
-      email: "sarah@siswa.ukm.edu.my",
-      phone: "0187643521",
-    },
-    {
-      bookingID: "21152",
-      name: "Kamarul",
-      equipment: "Badminton Racket",
-      dateBooked: "3/10/2024",
-      returnBooked: "5/10/2024",
-      quantity: "2",
-      email: "kamarul@siswa.ukm.edu.my",
-      phone: "0163452231",
-    },    
-    {
-      bookingID: "21302",
-      name: "Aisyah",
-      equipment: "Badminton Racket",
-      dateBooked: "3/10/2024",
-      returnBooked: "5/10/2024",
-      quantity: "2",
-      email: "aisyah@siswa.ukm.edu.my",
-      phone: "0132567543",
-    },
-    {
-      bookingID: "21342",
-      name: "Zaki",
-      equipment: "Badminton Racket",
-      dateBooked: "3/10/2024",
-      returnBooked: "5/10/2024",
-      quantity: "2",
-      email: "Zaki@siswa.ukm.edu.my",
-      phone: "013209817",
-    },
-    {
-      bookingID: "55555",
-      name: "Bunga",
-      equipment: "Badminton Racket",
-      dateBooked: "3/10/2024",
-      returnBooked: "5/10/2024",
-      quantity: "2",
-      email: "bunga@siswa.ukm.edu.my",
-      phone: "0154326789",
-    },
-  ];
+  useEffect(() => {
+    const fetchEquipmentBookings = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("http://localhost:5000/api/bookingequipment");
+        const data = await response.json();
+        console.log("Fetched equipment bookings:", data); // Log the fetched data
+        setEquipmentBookings(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching equipment bookings:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchEquipmentBookings();
+  }, []);
 
   const handleDateChange = (e) => {
     setSelectedDate(e.target.value);
-    setCurrentPage(1); // Reset to the first page on date change
+    setCurrentPage(1); // Reset to the first page when a new date is selected
   };
 
   const handleRowsChange = (e) => {
     setRowsPerPage(Number(e.target.value));
-    setCurrentPage(1); // Reset to the first page whenever rows per page change
+    setCurrentPage(1); // Reset to the first page when rows per page is changed
   };
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
   };
 
-  // Filtered bookings by date
-  const filteredBookings = venueBookings.filter(
-    (booking) => !filterDate || booking.dateBooked === filterDate
+  // Filter bookings based on selected date
+  const filteredEquipmentBookings = equipmentBookings.filter((booking) => {
+    // If no date is selected, return all bookings
+    if (!selectedDate) {
+      return true;
+    }
+    // Otherwise, compare booking date with selected date
+    return booking.BookingItemDate === selectedDate;
+  });
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredEquipmentBookings.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const currentEquipmentBookings = filteredEquipmentBookings.slice(
+    startIndex,
+    startIndex + rowsPerPage
   );
 
-    // Pagination logic
-    const totalPages = Math.ceil(filteredBookings.length / rowsPerPage);
-    const startIndex = (currentPage - 1) * rowsPerPage;
-    const currentBookings = filteredBookings.slice(startIndex, startIndex + rowsPerPage);
+  return (
+    <div className="report-container">
+      <div className="report-banner">
+        <h1>Sport Equipment Booking Report</h1>
+      </div>
 
-    return (
-      <div className="report-container">
-        {/* Banner Section */}
-        <div className="report-banner">
-          <h1>Venue Booking Report</h1>
-        </div>
-  
-        {/* Filter Section */}
-        <div className="filter-container">
-          <label>
-            Show List:
-            <select value={rowsPerPage} onChange={handleRowsChange}>
-              <option value={5}>5</option>
-              <option value={10}>10</option>
-              <option value={15}>15</option>
-            </select>
-          </label>
-          <label>
-            Date:
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={handleDateChange}
-            />
-          </label>
-        </div>
-  
-        {/* Table Section */}
+      <div className="filter-container">
+        <label>
+          Show List:
+          <select value={rowsPerPage} onChange={handleRowsChange}>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={15}>15</option>
+          </select>
+        </label>
+        <label>
+          Date:
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={handleDateChange}
+          />
+        </label>
+      </div>
+
+      {loading ? (
+        <div className="loading">Loading...</div>
+      ) : (
         <div className="report-table-container">
           <table className="table-container">
             <thead>
               <tr>
                 <th>Booking ID</th>
-                <th>Name</th>
-                <th>Equipment</th>
-                <th>Date Booked</th>
-                <th>Return Booked</th>
+                <th>Equipment Name</th>
                 <th>Quantity</th>
+                <th>Booking Date</th>
+                <th>Return Date</th>
+                <th>Student Name</th>
                 <th>Email</th>
-                <th>Phone Number</th>
+                <th>Phone</th>
               </tr>
             </thead>
             <tbody>
-              {currentBookings.map((booking) => (
-                <tr key={booking.bookingID}>
-                  <td>{booking.bookingID}</td>
-                  <td>{booking.name}</td>
-                  <td>{booking.equipment}</td>
-                  <td>{booking.dateBooked}</td>
-                  <td>{booking.returnBooked}</td>
-                  <td>{booking.quantity}</td>
-                  <td>
-                    <a href={`mailto:${booking.email}`}>{booking.email}</a>
-                  </td>
-                  <td>{booking.phone}</td>
-                </tr>
-              ))}
+              {currentEquipmentBookings.map((bse) => {
+                console.log("Booking data:", bse); // Check the data
+                return (
+                  <tr key={bse.BookingItemID}>
+                    <td>{bse.BookingItemID}</td>
+                    <td>{bse.ItemName}</td>
+                    <td>{bse.BookingItemQuantity}</td>
+                    <td>{formatDate(bse.BookingItemDate)}</td> {/* Apply date format */}
+                    <td>{formatDate(bse.BookingItemReturnedDate)}</td> {/* Apply date format */}
+                    <td>{bse.StudentName || "N/A"}</td>
+                    <td>
+                      <a href={`mailto:${bse.StudentEmail}`}>{bse.StudentEmail || "N/A"}</a>
+                    </td>
+                    <td>{bse.StudentPhoneNumber || "N/A"}</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
-  
-        {/* Pagination Section */}
-        <div className="pagination">
-          {Array.from({ length: totalPages }, (_, index) => (
-            <button
-              key={index + 1}
-              className={`page-btn ${currentPage === index + 1 ? "active" : ""}`}
-              onClick={() => handlePageChange(index + 1)}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
+      )}
+
+<div className="pagination">
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index + 1}
+            className={`page-btn ${currentPage === index + 1 ? "active" : ""}`}
+            onClick={() => handlePageChange(index + 1)}
+          >
+            {index + 1}
+          </button>
+        ))}
       </div>
-    );
-  };
-export default ReportVenues;
+    </div>
+  );
+};
+
+export default ReportEquipment;
