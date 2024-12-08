@@ -14,7 +14,7 @@ const HistoryPage = () => {
   };
 
   const handleEquipmentNavigation = () => {
-    navigate("/report-equipment");
+    navigate("/booking-item-history");
   };
 
 

@@ -18,7 +18,13 @@ const BookingItemHistory = () => {
           throw new Error('Failed to fetch bookings');
         }
         const data = await response.json();
-        setBookings(data); // Update state with the fetched bookings
+
+        if (data.length === 0) {
+          // If no bookings found, clear any previous error and display the "no bookings" message
+          setBookings([]);
+        } else {
+          setBookings(data); // Update state with the fetched bookings
+        }
       } catch (err) {
         setError(err.message); // Handle any errors
       }
@@ -29,12 +35,17 @@ const BookingItemHistory = () => {
 
   const handleViewDetails = (booking) => {
     // Navigate to the HistoryDetails page and pass the booking details
-    navigate(`/booking-history-detail/${booking.BookingItemID}`);
+    navigate(`/booking-item-detail/${booking.BookingItemID}`);
   };
 
-  if (error) {
-    return <div className="error">{error}</div>;
-  }
+  // Function to format date to dd/mm/yyyy
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
 
   return (
     <div className="booking-history-container">
@@ -45,7 +56,9 @@ const BookingItemHistory = () => {
       <div className="booking-history-list">
         <h2>Your Booking History List</h2>
         <div className="bookings-grid">
-          {bookings.length === 0 && !error ? (
+          {error ? (
+            <p className="error">{error}</p>
+          ) : bookings.length === 0 ? (
             <p>You have not booked any item</p> // Display message for empty bookings
           ) : (
             bookings.map((booking) => (
@@ -58,7 +71,10 @@ const BookingItemHistory = () => {
                 </div>
                 <div className="booking-info">
                   <h3 className="booking-title">{booking.ItemName}</h3>
-                  <p className="booking-date">{booking.BookingItemReturnedDate}</p>
+                  <p className="booking-date">
+                    <span style={{ fontWeight: 'bold' }}>Booking Date: </span>{formatDate(booking.BookingItemDate)}<br />
+                    <span style={{ fontWeight: 'bold' }}>Return Date: </span>{formatDate(booking.BookingItemReturnedDate)}
+                  </p>
                   <button
                     className="view-button"
                     onClick={() => handleViewDetails(booking)}

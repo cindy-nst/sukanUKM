@@ -725,6 +725,48 @@ app.get('/api/booking/:BookingID', async (req, res) => { // Accepts :BookingID i
   }
 });
 
+// API endpoint to fetch booking item details by BookingID
+app.get('/api/bookingitem/:BookingID', async (req, res) => {
+  const { BookingID } = req.params;
+  console.log("Received BookingID:", BookingID);
+
+  const query = `
+    SELECT 
+      bse.BookingItemID, 
+      bse.BookingItemDate, 
+      bse.BookingItemReturnedDate, 
+      se.ItemName, 
+      st.StudentName
+    FROM bookingsportequipment bse
+    JOIN sportequipment se ON bse.ItemID = se.ItemID
+    JOIN student st ON bse.StudentID = st.StudentID
+    WHERE bse.BookingItemID = ?;
+  `;
+
+  try {
+    const [rows] = await db.promise().execute(query, [BookingID]);
+    console.log("Query Result:", rows);
+
+    if (rows.length === 0) {
+      console.warn("No booking found for ID:", BookingID);
+      return res.status(404).json({ error: 'Booking item not found' });
+    }
+
+    const bookingDetail = rows[0];
+    res.json({
+      BookingItemID: bookingDetail.BookingItemID,
+      BookingItemDate: bookingDetail.BookingItemDate,
+      BookingItemReturnedDate: bookingDetail.BookingItemReturnedDate,
+      ItemName: bookingDetail.ItemName,
+      StudentName: bookingDetail.StudentName,
+    });
+  } catch (err) {
+    console.error("Error during query execution:", err.stack);
+    res.status(500).json({ error: 'Failed to fetch booking item details' });
+  }
+});
+
+
 // Backend API endpoint to fetch booking history
 app.get('/api/getBookingHistory', async (req, res) => {
   const { UserID } = req.query; // Retrieve UserID from query parameters
@@ -761,43 +803,47 @@ app.get('/api/getBookingHistory', async (req, res) => {
   }
 });
 
-// // Backend API endpoint to fetch booking item history (WORK ON THIS)
-// app.get('/api/getBookingItemHistory', async (req, res) => {
-//   const { UserID } = req.query; // Retrieve UserID from query parameters
+// Backend API endpoint to fetch booking item history (WORK ON THIS)
+app.get('/api/getBookingItemHistory', async (req, res) => {
+  const { UserID } = req.query; // Retrieve UserID from query parameters
 
-//   if (!UserID) {
-//     return res.status(400).json({ error: 'UserID is required' });
-//   }
+  if (!UserID) {
+    return res.status(400).json({ error: 'UserID is required' });
+  }
 
-//   const query = `
-//     SELECT 
-//       bs.BookingItemID, 
-//       bs.BookingItemDate, 
-//       bs.BookingItemReturnedDate,
-//       bs.BookingItemQuantity, 
-//       se.ItemName, 
-//       se.SportPic,
-//       s.StudentName
-//     FROM bookingsportequipment bs
-//     JOIN sportequipment se ON bs.ItemID = se.ItemID
-//     JOIN student s ON bs.StudentID = s.StudentID
-//     WHERE s.StudentID = ?; -- Filter by UserID
-//   `;
+  const query = `
+    SELECT 
+      bs.BookingItemID, 
+      bs.BookingItemDate, 
+      bs.BookingItemReturnedDate,
+      bs.BookingItemQuantity, 
+      se.ItemName, 
+      se.SportPic,
+      s.StudentName
+    FROM bookingsportequipment bs
+    JOIN sportequipment se ON bs.ItemID = se.ItemID
+    JOIN student s ON bs.StudentID = s.StudentID
+    WHERE s.StudentID = ?;
+  `;
 
-//   try {
-//     const [rows] = await db.promise().execute(query, [UserID]);
+  try {
+    const [rows] = await db.promise().execute(query, [UserID]);
 
-//     if (rows.length === 0) {
-//       return res.json([]); // Return an empty array instead of a 404 status
-//     }
+    if (rows.length === 0) {
+      // Return an empty array, instead of 404, since no data found is not an error
+      return res.json([]);
+    }
 
-//     res.json(rows); // Return the fetched rows
-//   } catch (err) {
-//     console.error('Database query error:', err.stack);
-//     res.status(500).json({ error: 'Failed to fetch item history' });
-//   }
-// });
+    // Successfully return the booking history
+    res.json(rows);
+  } catch (err) {
+    console.error('Database query error:', err.stack);
+    // Provide more detailed error messages
+    res.status(500).json({ error: 'Failed to fetch item history from the database.', message: err.message });
+  }
+});
 
+//API for add sport equipment
 app.post('/api/addBookingEquipment', async (req, res) => {
   const { ItemID, StudentID, BookingItemDate, BookingItemReturnedDate, BookingItemQuantity } = req.body;
 

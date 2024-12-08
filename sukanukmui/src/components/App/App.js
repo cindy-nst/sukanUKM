@@ -27,6 +27,7 @@ import ReportEquipment from '../Report/ReportEquipment';
 import BookingHistory from '../History/BookingHistory';
 import BookingHistoryDetail from '../History/BookingHistoryDetail';
 import BookingItemHistory from '../History/BookingItemHistory';
+import BookingItemHistoryDetail from '../History/BookingItemHistoryDetail';
 import HistoryPage from '../History/HistoryPage';
 
 import { UserContext } from '../UserContext'; // Assuming this is where your UserContext is defined
@@ -68,7 +69,7 @@ function App() {
         <Route path="/booking-history" element={<BookingHistory />} />
         <Route path="/booking-history-detail/:BookingID" element={<BookingHistoryDetail />} />
         <Route path="/booking-item-history" element={<BookingItemHistory />} />
-
+        <Route path="/booking-item-detail/:BookingID" element={<BookingItemHistoryDetail />} />
         <Route path="/historypage" element={<HistoryPage />} />
 
         {/* Add other routes as needed */}
