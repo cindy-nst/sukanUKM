@@ -637,10 +637,14 @@ app.post('/api/addBookingCourt', async (req, res) => {
       BookingCourtID = 'BKC' + newNumber.toString().padStart(4, '0');
     }
 
-    // Insert booking into the database
+    // Get the current date and time in the desired format (YYYY-MM-DD HH:MM:SS)
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
+
+    // Insert booking into the database, including the BookingDate column
     const insertQuery = `
-      INSERT INTO bookingcourt (BookingCourtID, CourtID, StudentID, BookingCourtTime, BookingCourtDate) 
-      VALUES (?, ?, ?, ?, ?)
+      INSERT INTO bookingcourt (BookingCourtID, CourtID, StudentID, BookingCourtTime, BookingCourtDate, BookingDate) 
+      VALUES (?, ?, ?, ?, ?, ?)
     `;
     await db.promise().execute(insertQuery, [
       BookingCourtID,
@@ -648,6 +652,7 @@ app.post('/api/addBookingCourt', async (req, res) => {
       StudentID,
       BookingCourtTime,
       BookingCourtDate,
+      formattedDate // Insert the current date-time in DATETIME format
     ]);
 
     res.status(200).json({
@@ -898,10 +903,14 @@ app.post('/api/addBookingEquipment', async (req, res) => {
       newBookingID = 'BSE' + newNumber.toString().padStart(4, '0');
     }
 
+    // Get the current date and time in the desired format (YYYY-MM-DD HH:MM:SS)
+    const currentDate = new Date();
+    const formattedDate = currentDate.toISOString().slice(0, 19).replace('T', ' ');
+
     // Insert the new booking record into the database
     const insertQuery =
-      'INSERT INTO bookingsportequipment (BookingItemID, ItemID, StudentID, BookingItemDate, BookingItemReturnedDate, BookingItemQuantity) ' +
-      'VALUES (?, ?, ?, ?, ?, ?)';
+      'INSERT INTO bookingsportequipment (BookingItemID, ItemID, StudentID, BookingItemDate, BookingItemReturnedDate, BookingItemQuantity, BookingDate) ' +
+      'VALUES (?, ?, ?, ?, ?, ?, ?)';
 
     await db.promise().execute(insertQuery, [
       newBookingID,
@@ -910,6 +919,7 @@ app.post('/api/addBookingEquipment', async (req, res) => {
       BookingItemDate,
       BookingItemReturnedDate,
       BookingItemQuantity,
+      formattedDate
     ]);
 
     res.status(200).json({
