@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from "react-router-dom";
 import './BookingHistory.css';
+import { UserContext } from '../UserContext';
 
 const BookingHistory = () => {
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
   const [bookings, setBookings] = useState([]); // Initial state is an empty array
   const [error, setError] = useState(null); // For error handling
 
@@ -11,7 +13,7 @@ const BookingHistory = () => {
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/getBookingHistory'); // Updated API URL
+        const response = await fetch(`http://localhost:5000/api/getBookingHistory?UserID=${user.UserID}`);
         if (!response.ok) {
           throw new Error('Failed to fetch bookings');
         }
@@ -21,9 +23,9 @@ const BookingHistory = () => {
         setError(err.message); // Handle any errors
       }
     };
-
+  
     fetchBookings();
-  }, []); // Empty dependency array to run only once when the component mounts
+  }, [user.UserID]); // Include user.UserID as a dependency
 
   const handleViewDetails = (booking) => {
     // Navigate to the HistoryDetails page and pass the booking details
@@ -39,26 +41,24 @@ const BookingHistory = () => {
       <div className="booking-history-banner">
         <h1>Booking History</h1>
       </div>
-
+  
       <div className="booking-history-list">
         <h2>Your Booking History List</h2>
         <div className="bookings-grid">
-          {bookings.length === 0 ? (
-            <p>No bookings found</p>
+          {bookings.length === 0 && !error ? (
+            <p>You have not booked any court venue</p> // Display message for empty bookings
           ) : (
             bookings.map((booking) => (
               <div key={booking.BookingCourtID} className="booking-card">
                 <div className="booking-image">
-                  {/* Use CourtPic from the response */}
                   <img
-                    src={`http://localhost:5000/images/${booking.CourtPic}`} // Dynamic image path
+                    src={`http://localhost:5000/images/${booking.CourtPic}`}
                     alt={booking.CourtName}
                   />
                 </div>
                 <div className="booking-info">
                   <h3 className="booking-title">{booking.CourtName}</h3>
                   <p className="booking-date">{booking.BookingCourtDate}</p>
-                  <p className="booking-venue">{booking.StudentName}</p>
                   <button
                     className="view-button"
                     onClick={() => handleViewDetails(booking)}

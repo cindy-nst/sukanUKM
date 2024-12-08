@@ -613,7 +613,6 @@ app.delete('/api/sportequipment/:id', (req, res) => {
 });
 
 // For Add Booking Court
-const { v4: uuidv4 } = require('uuid'); // Install UUID with `npm install uuid`
 app.post('/api/addBookingCourt', async (req, res) => {
   const { CourtID, StudentID, BookingCourtTime, BookingCourtDate } = req.body;
 
@@ -621,17 +620,21 @@ app.post('/api/addBookingCourt', async (req, res) => {
     return res.status(400).json({ message: 'All fields are required.' });
   }
 
-  // Generate a unique BookingCourtID
-  let BookingCourtID = uuidv4(); // Generate UUID
-
   try {
-    // Check if the BookingCourtID already exists
-    const checkQuery = `SELECT BookingCourtID FROM bookingcourt WHERE BookingCourtID = ?`;
-    const [rows] = await db.promise().execute(checkQuery, [BookingCourtID]);
+    let BookingCourtID = 'BKC0001'; // Default in case no booking exists yet
 
-    // Regenerate if ID exists
-    while (rows.length > 0) {
-      BookingCourtID = uuidv4();
+    // Fetch existing BookingCourtIDs
+    const fetchQuery = `SELECT BookingCourtID FROM bookingcourt ORDER BY BookingCourtID DESC LIMIT 1`;
+    const [rows] = await db.promise().execute(fetchQuery);
+
+    if (rows.length > 0) {
+      // Extract the last number and increment it
+      const lastBookingID = rows[0].BookingCourtID;
+      const lastNumber = parseInt(lastBookingID.substring(3), 10);
+      const newNumber = lastNumber + 1;
+
+      // Generate new BookingCourtID (BKCxxx format)
+      BookingCourtID = 'BKC' + newNumber.toString().padStart(4, '0');
     }
 
     // Insert booking into the database
@@ -654,6 +657,38 @@ app.post('/api/addBookingCourt', async (req, res) => {
   } catch (err) {
     console.error('Database error:', err);
     res.status(500).json({ message: 'Error adding booking court', error: err });
+  }
+});
+
+// API to fetch the booked times for the selected date
+app.get('/api/getBookedTimes', async (req, res) => {
+  const { courtID, date } = req.query;
+  if (!courtID || !date) {
+    return res.status(400).json({ message: 'CourtID and date are required.' });
+  }
+  try {
+    // Log the formatted date received from the client
+    console.log("Received Date:", date);
+    // Query to fetch all booked times for the selected court and date
+    const query = `
+      SELECT BookingCourtTime
+      FROM bookingcourt
+      WHERE CourtID = ? AND BookingCourtDate = ?
+    `;
+    const [rows] = await db.promise().execute(query, [courtID, date]);
+    // Check if there are booked times
+    if (rows.length === 0) {
+      return res.status(200).json({ bookedTimes: [] }); // Return an empty array if no bookings exist
+    }
+    // Split comma-separated times and flatten them into a single array
+    const bookedTimes = rows
+      .map(row => row.BookingCourtTime.split(',').map(time => time.trim())) // Split by commas and remove extra spaces
+      .flat(); // Flatten into a single array
+    // Return the booked times as a JSON response
+    res.status(200).json({ bookedTimes });
+  } catch (err) {
+    console.error("Database error:", err);
+    res.status(500).json({ message: 'Error fetching booked times', error: err });
   }
 });
 
@@ -692,6 +727,12 @@ app.get('/api/booking/:BookingID', async (req, res) => { // Accepts :BookingID i
 
 // Backend API endpoint to fetch booking history
 app.get('/api/getBookingHistory', async (req, res) => {
+  const { UserID } = req.query; // Retrieve UserID from query parameters
+
+  if (!UserID) {
+    return res.status(400).json({ error: 'UserID is required' });
+  }
+
   const query = `
     SELECT 
       bc.BookingCourtID, 
@@ -702,17 +743,18 @@ app.get('/api/getBookingHistory', async (req, res) => {
       s.StudentName
     FROM bookingcourt bc
     JOIN court c ON bc.CourtID = c.CourtID
-    JOIN student s ON bc.StudentID = s.StudentID;
+    JOIN student s ON bc.StudentID = s.StudentID
+    WHERE s.StudentID = ?; -- Filter by UserID
   `;
 
   try {
-    const [rows] = await db.promise().execute(query);
+    const [rows] = await db.promise().execute(query, [UserID]);
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'No bookings found' });
+      return res.json([]); // Return an empty array instead of a 404 status
     }
 
-    res.json(rows);
+    res.json(rows); // Return the fetched rows
   } catch (err) {
     console.error('Database query error:', err.stack);
     res.status(500).json({ error: 'Failed to fetch booking history' });
@@ -761,7 +803,7 @@ app.post('/api/addBookingEquipment', async (req, res) => {
     const selectQuery = 'SELECT BookingItemID FROM bookingsportequipment ORDER BY BookingItemID DESC LIMIT 1';
     const [rows] = await db.promise().execute(selectQuery);
 
-    let newBookingID = 'BSE001'; // Default in case no booking exists yet
+    let newBookingID = 'BSE0001'; // Default in case no booking exists yet
 
     if (rows.length > 0) {
       // Extract the last number, and increment it
@@ -770,7 +812,7 @@ app.post('/api/addBookingEquipment', async (req, res) => {
       const newNumber = lastNumber + 1;
 
       // Generate new BookingEquipmentID (BSExxx format)
-      newBookingID = 'BSE' + newNumber.toString().padStart(3, '0');
+      newBookingID = 'BSE' + newNumber.toString().padStart(4, '0');
     }
 
     // Insert the new booking record into the database
