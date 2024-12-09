@@ -59,6 +59,8 @@ const BookEquipmentDateTime = () => {
 
   // Proceed to confirmation page
   const handleProceed = () => {
+    setIsLoading(true);
+    setTimeout(() => {
     if (!selectedDate || !selectedReturnDate || quantityState <= 0) {
       alert("Please fill in all the required fields.");
       return;
@@ -66,14 +68,17 @@ const BookEquipmentDateTime = () => {
     navigate(`/book-equipment-confirmation/${ItemID}`, {
       state: { date: selectedDate, returndate: selectedReturnDate, quantity: quantityState },
     });
+    setIsLoading(false);
+    }, 1000);
   };
-
-  if (isLoading) {
-    return <div className="loading">Loading...</div>;
-  }
 
   return (
     <div>
+      {isLoading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
       <div
         className="header-banner"
         style={{

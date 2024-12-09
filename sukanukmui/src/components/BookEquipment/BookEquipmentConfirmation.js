@@ -48,7 +48,7 @@ const BookEquipmentConfirmation = () => {
 
   const handleProceed = async () => {
     setIsLoading(true);
-  
+    setTimeout(async () => {
     const bookingData = {
       ItemID: ItemID,
       StudentID: user.UserID,
@@ -82,9 +82,9 @@ const BookEquipmentConfirmation = () => {
     } catch (error) {
       console.error("Error saving booking:", error);
       alert("An error occurred while saving the booking.");
-    } finally {
-      setIsLoading(false);
     }
+      setIsLoading(false);
+    }, 2000);
   };
   
 
@@ -94,13 +94,13 @@ const BookEquipmentConfirmation = () => {
       state: { date, returndate, quantity },
     });
   };
-
-  if (isLoading) {
-    return <div className="loading">Loading...</div>;
-  }
-
   return (
     <div>
+      {isLoading && (
+        <div className="loading-overlay">
+          <div className="spinner"></div>
+        </div>
+      )}
       <div
         className="header-banner"
         style={{
