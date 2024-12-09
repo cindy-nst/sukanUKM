@@ -14,7 +14,7 @@ const ReportVenues = () => {
         setLoading(true); // Start loading
         const response = await fetch("http://localhost:5000/api/bookingcourt"); // Replace with your API endpoint
         const data = await response.json();
-        console.log("Fetched bookings:", data);  // Log the entire bookings data
+        console.log("Fetched bookings:", data); // Log the entire bookings data
         setBookings(data); // Set the fetched bookings
         setLoading(false); // End loading
       } catch (error) {
@@ -22,7 +22,7 @@ const ReportVenues = () => {
         setLoading(false);
       }
     };
-  
+
     fetchBookings();
   }, []);
 
@@ -40,22 +40,19 @@ const ReportVenues = () => {
     setCurrentPage(pageNumber);
   };
 
-  // Helper function to convert booking date to "YYYY-MM-DD" format
-  const formatBookingDateToInputFormat = (bookingDate) => {
-    const [day, month, year] = bookingDate.split(" ");
-    const monthIndex = new Date(`${month} 1`).getMonth() + 1;
-    const formattedMonth = monthIndex.toString().padStart(2, "0");
-    return `${year}-${formattedMonth}-${day.padStart(2, "0")}`;
+  const formatDateToDDMMYYYY = (dateString) => {
+    const date = new Date(dateString); // Parse the ISO date string
+    const day = date.getDate().toString().padStart(2, "0");
+    const month = (date.getMonth() + 1).toString().padStart(2, "0"); // Months are zero-indexed
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
   };
 
   // Filter bookings based on selected date
   const filteredBookings = bookings.filter((booking) => {
-    const formattedBookingDate = formatBookingDateToInputFormat(booking.BookingCourtDate); // Convert booking date to input format (YYYY-MM-DD)
-
-    // Compare the selected date with the booking date
     return (
       !selectedDate || // If no date is selected, return all bookings
-      formattedBookingDate === selectedDate // Compare formatted dates
+      booking.BookingCourtDate === selectedDate // Compare selected date with booking date
     );
   });
 
@@ -106,6 +103,7 @@ const ReportVenues = () => {
                 <th>Date Booked</th>
                 <th>Email</th>
                 <th>Phone Number</th>
+                <th>Booking Date</th>
               </tr>
             </thead>
             <tbody>
@@ -122,6 +120,7 @@ const ReportVenues = () => {
                     </a>
                   </td>
                   <td>{b.StudentPhoneNumber}</td>
+                  <td>{formatDateToDDMMYYYY(b.BookingDate)}</td>
                 </tr>
               ))}
             </tbody>

@@ -102,11 +102,12 @@ const ReportEquipment = () => {
                 <th>Booking ID</th>
                 <th>Equipment Name</th>
                 <th>Quantity</th>
-                <th>Booking Date</th>
+                <th>Booking Equipment Date</th>
                 <th>Return Date</th>
                 <th>Student Name</th>
                 <th>Email</th>
                 <th>Phone</th>
+                <th>Booking Date</th>
               </tr>
             </thead>
             <tbody>
@@ -124,6 +125,7 @@ const ReportEquipment = () => {
                       <a href={`mailto:${bse.StudentEmail}`}>{bse.StudentEmail || "N/A"}</a>
                     </td>
                     <td>{bse.StudentPhoneNumber || "N/A"}</td>
+                    <td>{formatDate(bse.BookingDate)}</td>
                   </tr>
                 );
               })}

@@ -980,7 +980,8 @@ app.get('/api/bookingcourt', async (req, res) => {
         b.BookingCourtDate, 
         s.StudentName, 
         s.StudentEmail, 
-        s.StudentPhoneNumber 
+        s.StudentPhoneNumber, 
+        b.BookingDate
       FROM bookingcourt b
       JOIN student s ON b.StudentID = s.StudentID
       INNER JOIN court c ON b.CourtID = c.CourtID`;
@@ -1006,7 +1007,8 @@ app.get('/api/bookingequipment', async (req, res) => {
         bse.BookingItemQuantity, 
         s.StudentName, 
         s.StudentEmail, 
-        s.StudentPhoneNumber
+        s.StudentPhoneNumber,
+        bse.BookingDate
       FROM bookingsportequipment bse
       JOIN student s ON bse.StudentID = s.StudentID
       INNER JOIN sportequipment e ON bse.ItemID = e.ItemID`;  // Join with the equipment table
