@@ -7,6 +7,8 @@ const ReportVenues = () => {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true); // For showing a loading spinner
+  const [rawSelectedDate, setRawSelectedDate] = useState(""); // For the date picker value
+
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -27,9 +29,29 @@ const ReportVenues = () => {
   }, []);
 
   const handleDateChange = (e) => {
-    setSelectedDate(e.target.value); // Update selected date
+    const date = e.target.value;
+  
+    if (!date) {
+      // If the date picker is cleared, reset both states
+      setRawSelectedDate("");
+      setSelectedDate("");
+      return;
+    }
+  
+    setRawSelectedDate(date); // Update raw date for input value
+  
+    const dateObject = new Date(date);
+    const day = dateObject.getDate();
+    const month = dateObject.toLocaleString("en-GB", { month: "short" });
+    const year = dateObject.getFullYear();
+    const weekday = dateObject.toLocaleString("en-GB", { weekday: "long" });
+  
+    // Format the date to match BookingCourtDate in the data
+    const formattedDate = `${day} ${month} ${year}, ${weekday}`;
+    setSelectedDate(formattedDate); // Update selected date
     setCurrentPage(1); // Reset to the first page on date change
   };
+  
 
   const handleRowsChange = (e) => {
     setRowsPerPage(Number(e.target.value));
@@ -83,7 +105,7 @@ const ReportVenues = () => {
           Date:
           <input
             type="date"
-            value={selectedDate}
+            value={rawSelectedDate}
             onChange={handleDateChange}
           />
         </label>
