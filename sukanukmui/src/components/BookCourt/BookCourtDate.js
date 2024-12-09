@@ -141,11 +141,25 @@ const BookCourtDate = () => {
   // Toggle time selection
   const handleTimeSelect = (time) => {
     if (!bookedTimes.includes(time)) {
-      setSelectedTimes((prev) =>
-        prev.includes(time) ? prev.filter((t) => t !== time) : [...prev, time]
-      );
+      setSelectedTimes((prev) => {
+        const updatedTimes = prev.includes(time)
+          ? prev.filter((t) => t !== time) // Remove the time if already selected
+          : [...prev, time]; // Add the time if not selected
+        
+        // Sort the updated times array in chronological order
+        return updatedTimes.sort((a, b) => {
+          const parseTime = (t) => {
+            const [hour, minute, period] = t.match(/(\d+):(\d+)\s([AP]M)/).slice(1);
+            let totalMinutes = parseInt(hour) % 12 * 60 + parseInt(minute);
+            if (period === "PM") totalMinutes += 12 * 60;
+            return totalMinutes;
+          };
+          return parseTime(a) - parseTime(b);
+        });
+      });
     }
   };
+  
 
   // Proceed to confirmation
   const handleProceed = () => {
