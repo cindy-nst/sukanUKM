@@ -103,7 +103,9 @@ const BookEquipment = () => {
                   Availability: {item.AvailableQuantity}
                 </p>
                 <button
-                  className="book-now-button"
+                  className={`book-now-button ${
+                    item.AvailableQuantity <= 0 ? 'out-of-stock-button' : ''
+                  }`}
                   onClick={() => handleBookNow(item.ItemID)}
                   disabled={item.AvailableQuantity <= 0} // Disable if no availability
                 >

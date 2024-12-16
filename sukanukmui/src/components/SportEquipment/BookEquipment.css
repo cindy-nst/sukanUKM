@@ -183,3 +183,13 @@
       padding: 12px 20px;
     }
   }
+
+  .out-of-stock-button {
+    background-color: #ffcccc; /* Light red background */
+    color: #ff0000; /* Red text */
+    cursor: not-allowed; /* Indicate the button is disabled */
+  }
+  
+  .out-of-stock-button:hover {
+    background-color: #ff9999; /* Slightly darker red on hover */
+  }
