@@ -15,10 +15,12 @@
 }
 
 .hero-student h2 {
-    font-size: 1.8rem;  /* Same as admin size */
+    font-size: 1.8rem;
     color: #333;
     margin-top: 0.5rem;
     font-weight: 400;
+    text-align: center;
+    padding: 25px 0;
 }
 
 /* Optional: Add responsive breakpoints for smaller screens */
