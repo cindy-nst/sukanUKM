@@ -11,6 +11,17 @@ const BookingItemHistoryDetail = () => {
   const [bookingDetail, setBookingDetail] = useState(null);
   const [error, setError] = useState(null);
 
+   // Function to format the date
+   const formatDate = (dateString) => {
+    if (!dateString) return "";
+    const dateObject = new Date(dateString);
+    const day = dateObject.getDate().toString().padStart(2, "0");
+    const month = dateObject.toLocaleString("en-GB", { month: "short" });
+    const year = dateObject.getFullYear();
+    const weekday = dateObject.toLocaleString("en-GB", { weekday: "long" });
+    return `${day} ${month} ${year}, ${weekday}`;
+  };
+
   const handleProceed = () => {
     navigate("/home");
   };
@@ -86,20 +97,26 @@ const BookingItemHistoryDetail = () => {
           {/* Dynamic Booking Details */}
           <div className="booking-info1">
             <p>
-              <span className="label-text1">Booking Date:</span>
+              <span className="label-text1">Name:</span>
               <div className="book-date-section1">{bookingDetail.StudentName || "N/A"}</div>
             </p>
             <div className="divider2"></div>
   
             <p>
+              <span className="label-text1">Booking Date:</span>
+              <div className="book-date-section1">{formatDate(bookingDetail.BookingItemDate || "N/A")}</div>
+            </p>
+            <div className="divider2"></div>
+
+            <p>
               <span className="label-text1">Return Date:</span>
-              <div className="book-date-section1">{bookingDetail.BookingItemDate || "N/A"}</div>
+              <div className="book-date-section1">{formatDate(bookingDetail.BookingItemReturnedDate || "N/A")}</div>
             </p>
             <div className="divider2"></div>
   
             <p>
               <span className="label-text1">Quantity:</span>
-              <div className="quantity-section1">{bookingDetail.BookingItemReturnedDate || "N/A"}</div>
+              <div className="quantity-section1">{bookingDetail.BookingItemQuantity || "N/A"}</div>
             </p>
           </div>
   

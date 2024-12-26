@@ -740,6 +740,7 @@ app.get('/api/bookingitem/:BookingID', async (req, res) => {
       bse.BookingItemID, 
       bse.BookingItemDate, 
       bse.BookingItemReturnedDate, 
+      bse.BookingItemQuantity,
       se.ItemName, 
       st.StudentName
     FROM bookingsportequipment bse
@@ -764,6 +765,7 @@ app.get('/api/bookingitem/:BookingID', async (req, res) => {
       BookingItemReturnedDate: bookingDetail.BookingItemReturnedDate,
       ItemName: bookingDetail.ItemName,
       StudentName: bookingDetail.StudentName,
+      BookingItemQuantity: bookingDetail.BookingItemQuantity,
     });
   } catch (err) {
     console.error("Error during query execution:", err.stack);
@@ -1020,4 +1022,23 @@ app.get('/api/bookingequipment', async (req, res) => {
     console.error("Error fetching booking data:", error.message || error);
     res.status(500).send("Error fetching booking data: " + (error.message || error));
   }
+});
+
+// CANCEL BOOKING
+app.delete('/api/cancelBooking/:id', (req, res) => {
+  const { id } = req.params;
+
+  const query = 'DELETE FROM bookingsportequipment WHERE BookingItemID = ?';
+  db.execute(query, [id], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Error canceling booking', error: err });
+    }
+
+    if (results.affectedRows > 0) {
+      res.status(200).json({ message: 'Booking canceled successfully.' });
+    } else {
+      res.status(404).json({ message: 'Booking not found.' });
+    }
+  });
 });

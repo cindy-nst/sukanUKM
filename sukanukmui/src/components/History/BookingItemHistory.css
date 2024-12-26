@@ -26,19 +26,57 @@
     margin-bottom: 20px;
 }
 
-/* Booking List Section */
-.booking-history-list h2 {
-    font-size: 1.8rem;
-    margin-bottom: 30px;
-    color: #333;
-    text-align: center;
+/* Container for the toggle buttons */
+.toggle-button-container {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0;
+  }
+  
+  /* Style for each button */
+  .toggle-button-container button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: 1px;
+    font-size: 16px;
+    transition: background-color;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  /* Style for the active button */
+  .toggle-button-container button.active {
+    background-color: #0056d2;
+    color: white;
+  }
+  
+  /* Hover effect */
+  .toggle-button-container button:hover {
+    background-color: #ddd;
+  }
+  
+  
+/* Section Styles */
+.booking-section {
+    margin-bottom: 50px;
 }
 
+.booking-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+    border-bottom: 2px solid #0056d2;
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+
+/* Booking Grid */
 .bookings-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 30px;
-    margin-bottom: 40px;
+    margin-top: 20px;
 }
 
 /* Booking Card Styles */
@@ -57,6 +95,7 @@
 .booking-image {
     height: 200px;
     overflow: hidden;
+    border-bottom: 1px solid #ddd;
 }
 
 .booking-image img {
@@ -73,15 +112,15 @@
     font-size: 1.2rem;
     margin-bottom: 10px;
     color: #333;
+    font-weight: bold;
 }
 
-.booking-date, .booking-venue {
+.booking-date {
     color: #666;
     font-size: 0.9rem;
     margin-bottom: 10px;
 }
 
-/* View Button Styles */
 .view-button {
     width: 100%;
     padding: 10px 16px;
@@ -99,6 +138,34 @@
 
 .view-button:hover {
     background-color: #360062;
+}
+
+/* Cancel Button Styles */
+.cancel-button {
+    width: 100%;
+    padding: 10px 16px;
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 12px;
+    text-align: center;
+}
+
+.cancel-button:hover {
+    background-color: #c9302c;
+}
+
+/* No Booking Message */
+.no-bookings-message {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #666;
+    margin-top: 20px;
 }
 
 /* Responsive Design */
