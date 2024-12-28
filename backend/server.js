@@ -1054,10 +1054,10 @@ app.delete('/api/cancelCourtBooking/:id', (req, res) => {
       return res.status(500).json({ message: 'Error canceling booking', error: err });
     }
 
-    /*if (results.affectedRows > 0) {
+    if (results.affectedRows > 0) {
       res.status(200).json({ message: 'Booking canceled successfully.' });
     } else {
       res.status(404).json({ message: 'Booking not found.' });
-    }*/
+    }
   });
 });
