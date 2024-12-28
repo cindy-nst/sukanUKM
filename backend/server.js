@@ -1024,7 +1024,7 @@ app.get('/api/bookingequipment', async (req, res) => {
   }
 });
 
-// CANCEL BOOKING
+// CANCEL ITEM BOOKING
 app.delete('/api/cancelBooking/:id', (req, res) => {
   const { id } = req.params;
 
@@ -1040,5 +1040,24 @@ app.delete('/api/cancelBooking/:id', (req, res) => {
     } else {
       res.status(404).json({ message: 'Booking not found.' });
     }
+  });
+});
+
+// CANCEL COURT BOOKING
+app.delete('/api/cancelCourtBooking/:id', (req, res) => {
+  const { id } = req.params;
+
+  const query = 'DELETE FROM bookingcourt WHERE BookingCourtID = ?';
+  db.execute(query, [id], (err, results) => {
+    if (err) {
+      console.error('Database error:', err);
+      return res.status(500).json({ message: 'Error canceling booking', error: err });
+    }
+
+    /*if (results.affectedRows > 0) {
+      res.status(200).json({ message: 'Booking canceled successfully.' });
+    } else {
+      res.status(404).json({ message: 'Booking not found.' });
+    }*/
   });
 });

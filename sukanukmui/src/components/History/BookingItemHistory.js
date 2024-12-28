@@ -10,6 +10,10 @@ const BookingItemHistory = () => {
   const [error, setError] = useState(null);
   const [view, setView] = useState('active');  // New state to toggle between active and past bookings
 
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState(null);
+
   useEffect(() => {
     const fetchBookings = async () => {
       try {
@@ -31,10 +35,10 @@ const BookingItemHistory = () => {
     navigate(`/booking-item-detail/${booking.BookingItemID}`);
   };
 
-  const handleCancelBooking = async (bookingID) => {
-    if (window.confirm('Are you sure you want to cancel this booking?')) {
+  const handleCancelBooking = async () => {
+    if (bookingToCancel) {
       try {
-        const response = await fetch(`http://localhost:5000/api/cancelBooking/${bookingID}`, {
+        const response = await fetch(`http://localhost:5000/api/cancelBooking/${bookingToCancel}`, {
           method: 'DELETE',
         });
   
@@ -43,12 +47,14 @@ const BookingItemHistory = () => {
         }
   
         setBookings((prevBookings) =>
-          prevBookings.filter((booking) => booking.BookingItemID !== bookingID)
+          prevBookings.filter((booking) => booking.BookingItemID !== bookingToCancel)
         );
   
         alert('Booking cancelled successfully.');
       } catch (err) {
         alert(err.message);
+      } finally {
+        setIsModalOpen(false); // Close the modal after the action
       }
     }
   };
@@ -86,7 +92,6 @@ const BookingItemHistory = () => {
       </div>
 
       <div className="booking-section">
-      
         <div className="bookings-grid">
           {filteredBookings.length === 0 ? (
             <p className="no-bookings-message">
@@ -117,7 +122,10 @@ const BookingItemHistory = () => {
                     {view === 'active' && (
                       <button
                         className="cancel-button"
-                        onClick={() => handleCancelBooking(booking.BookingItemID)}
+                        onClick={() => {
+                          setBookingToCancel(booking.BookingItemID); // Fix: Using BookingItemID for cancellation
+                          setIsModalOpen(true);
+                        }}
                       >
                         Cancel
                       </button>
@@ -129,6 +137,30 @@ const BookingItemHistory = () => {
           )}
         </div>
       </div>
+
+      {/* Modal for delete confirmation */}
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Confirm Cancellation</h2>
+            <p>Are you sure you want to cancel this booking?</p>
+            <div className="modal-buttons">
+              <button 
+                onClick={handleCancelBooking}
+                className="confirm-button"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="cancel-button"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

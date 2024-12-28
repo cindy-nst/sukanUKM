@@ -6,11 +6,14 @@ import { UserContext } from '../UserContext';
 const BookingHistory = () => {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
-  const [bookings, setBookings] = useState([]); // Initial state for bookings
-  const [error, setError] = useState(null); // State for error handling
-  const [view, setView] = useState('active'); // Toggle between 'active' and 'past'
+  const [bookings, setBookings] = useState([]);
+  const [error, setError] = useState(null);
+  const [view, setView] = useState('active');
 
-  // Fetch bookings from the backend
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState(null);
+
   useEffect(() => {
     const fetchBookings = async () => {
       try {
@@ -19,44 +22,41 @@ const BookingHistory = () => {
           throw new Error('Failed to fetch bookings');
         }
         const data = await response.json();
-        setBookings(data); // Update state with the fetched bookings
+        setBookings(data);
       } catch (err) {
-        setError(err.message); // Handle any errors
+        setError(err.message);
       }
     };
 
     fetchBookings();
-  }, [user.UserID]); // Dependency array includes user.UserID
+  }, [user.UserID]);
 
-  // Navigate to booking details page
   const handleViewDetails = (booking) => {
     navigate(`/booking-history-detail/${booking.BookingCourtID}`);
   };
 
-  // Handle cancel booking
   const handleCancelBooking = async (bookingID) => {
-    if (window.confirm('Are you sure you want to cancel this booking?')) {
-      try {
-        const response = await fetch(`http://localhost:5000/api/cancelBooking/${bookingID}`, {
-          method: 'DELETE',
-        });
+    try {
+      const response = await fetch(`http://localhost:5000/api/cancelCourtBooking/${bookingID}`, {
+        method: 'DELETE',
+      });
 
-        if (!response.ok) {
-          throw new Error('Failed to cancel booking');
-        }
-
-        setBookings((prevBookings) =>
-          prevBookings.filter((booking) => booking.BookingCourtID !== bookingID)
-        );
-
-        alert('Booking cancelled successfully.');
-      } catch (err) {
-        alert(err.message);
+      if (!response.ok) {
+        throw new Error('Failed to cancel booking');
       }
+
+      setBookings((prevBookings) =>
+        prevBookings.filter((booking) => booking.BookingCourtID !== bookingID)
+      );
+
+      alert('Booking cancelled successfully.');
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setIsModalOpen(false);
     }
   };
 
-  // Format date to DD MMM YYYY, Weekday (same format as in BookCourtDate.js)
   const formatDate = (date) => {
     const d = new Date(date);
     const day = String(d.getDate()).padStart(2, '0');
@@ -66,17 +66,23 @@ const BookingHistory = () => {
     return `${day} ${month} ${year}, ${weekday}`;
   };
 
-  // Toggle between active and past bookings
+  const parseFormattedDate = (dateString) => {
+    const [day, month, year] = dateString.split(",")[0].split(" ");
+    const months = {
+      Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5,
+      Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11,
+    };
+    return new Date(year, months[month], day);
+  };
+
   const toggleView = (newView) => {
     setView(newView);
   };
 
-  // Filter bookings into active and past
   const filteredBookings = view === 'active'
-    ? bookings.filter((booking) => new Date(booking.BookingCourtDate) >= new Date())
-    : bookings.filter((booking) => new Date(booking.BookingCourtDate) < new Date());
+    ? bookings.filter((booking) => parseFormattedDate(booking.BookingCourtDate) >= new Date())
+    : bookings.filter((booking) => parseFormattedDate(booking.BookingCourtDate) < new Date());
 
-  // Render error message if any
   if (error) {
     return <div className="error">{error}</div>;
   }
@@ -87,7 +93,6 @@ const BookingHistory = () => {
         <h1>Booking History</h1>
       </div>
 
-      {/* Toggle buttons for active and past bookings */}
       <div className="toggle-button-container">
         <button
           onClick={() => toggleView('active')}
@@ -122,7 +127,7 @@ const BookingHistory = () => {
                   <h3 className="booking-title">{booking.CourtName}</h3>
                   <p className="booking-date">
                     <span style={{ fontWeight: 'bold' }}>Booking Date: </span>
-                    {formatDate(booking.BookingCourtDate)}
+                    {booking.BookingCourtDate}
                   </p>
                   <button
                     className="view-button"
@@ -133,7 +138,10 @@ const BookingHistory = () => {
                   {view === 'active' && (
                     <button
                       className="cancel-button"
-                      onClick={() => handleCancelBooking(booking.BookingCourtID)}
+                      onClick={() => {
+                        setBookingToCancel(booking.BookingCourtID);
+                        setIsModalOpen(true);
+                      }}
                     >
                       Cancel
                     </button>
@@ -144,6 +152,29 @@ const BookingHistory = () => {
           )}
         </div>
       </div>
+
+      {isModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Confirm Cancellation</h2>
+            <p>Are you sure you want to cancel this booking?</p>
+            <div className="modal-buttons">
+              <button 
+                onClick={() => handleCancelBooking(bookingToCancel)}
+                className="confirm-button"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="cancel-button"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

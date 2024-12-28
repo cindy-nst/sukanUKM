@@ -180,3 +180,56 @@
         font-size: 13px;
     }
 }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  width: 300px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px; /* Space between buttons */
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  flex: 1; /* Equal width for both buttons */
+  padding: 10px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+}
+
+.confirm-button {
+  background-color: #ff4d4d;
+  color: white;
+}
+
+.cancel-button {
+  background-color: #d9534f;
+  color: white;
+}
+
+.modal-buttons button:hover {
+  opacity: 0.9; /* Slight transparency effect on hover */
+}
