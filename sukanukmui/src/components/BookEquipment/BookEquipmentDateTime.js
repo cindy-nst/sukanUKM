@@ -1,22 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, useLocation } from "react-router-dom"; // Ensure useLocation is imported
-import equipmentBanner from "../../images/equipment.jpg"; // Importing banner image
-import "./BookEquipmentDateTime.css"; // Importing CSS
+import { useNavigate, useParams, useLocation } from "react-router-dom";
+import equipmentBanner from "../../images/equipment.jpg";
+import "./BookEquipmentDateTime.css";
 
 const BookEquipmentDateTime = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Use useLocation to get the state passed via navigate
-  const { date, returndate, quantity } = location.state || {}; // Destructure state values (if present)
+  const location = useLocation();
+  const { date, returndate, quantity } = location.state || {};
 
   const { ItemID } = useParams();
-  const [item, setItem] = useState(null); // Store equipment details
-  const [selectedDate, setSelectedDate] = useState(date || ""); // Default to passed `date`
-  const [selectedReturnDate, setSelectedReturnDate] = useState(returndate || ""); // Default to passed `returndate`
-  const [quantityState, setQuantity] = useState(quantity || 1); // Default to passed `quantity`
-  const [isLoading, setIsLoading] = useState(true); // Loading state
-  
+  const [item, setItem] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(date || "");
+  const [selectedReturnDate, setSelectedReturnDate] = useState(returndate || "");
+  const [quantityState, setQuantity] = useState(quantity || 1);
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
-    // Fetch equipment details from the database
     const fetchItem = async () => {
       setIsLoading(true);
       try {
@@ -46,7 +45,45 @@ const BookEquipmentDateTime = () => {
     }
   };
 
-  // Format the date
+  // Validate and set the return date
+  const handleReturnDateChange = (e) => {
+    const newReturnDate = e.target.value;
+
+    if (selectedDate) {
+      const startDate = new Date(selectedDate);
+      const endDate = new Date(newReturnDate);
+      const diffTime = endDate - startDate;
+      const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+      if (diffDays > 2) {
+        alert("The return date cannot be more than 3 days after the selected start date.");
+        setSelectedReturnDate(""); // Clear invalid date
+      } else if (diffDays < 0) {
+        alert("The return date cannot be earlier than the selected start date.");
+        setSelectedReturnDate(""); // Clear invalid date
+      } else {
+        setSelectedReturnDate(newReturnDate); // Set valid date
+      }
+    } else {
+      alert("Please select a start date first.");
+      setSelectedReturnDate(""); // Clear invalid date
+    }
+  };
+
+  const handleProceed = () => {
+    setIsLoading(true);
+    setTimeout(() => {
+      if (!selectedDate || !selectedReturnDate || quantityState <= 0) {
+        alert("Please fill in all the required fields.");
+        return;
+      }
+      navigate(`/book-equipment-confirmation/${ItemID}`, {
+        state: { date: selectedDate, returndate: selectedReturnDate, quantity: quantityState },
+      });
+      setIsLoading(false);
+    }, 1000);
+  };
+
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const dateObject = new Date(dateString);
@@ -55,21 +92,6 @@ const BookEquipmentDateTime = () => {
     const year = dateObject.getFullYear();
     const weekday = dateObject.toLocaleString("en-GB", { weekday: "long" });
     return `${day} ${month} ${year}, ${weekday}`;
-  };
-
-  // Proceed to confirmation page
-  const handleProceed = () => {
-    setIsLoading(true);
-    setTimeout(() => {
-    if (!selectedDate || !selectedReturnDate || quantityState <= 0) {
-      alert("Please fill in all the required fields.");
-      return;
-    }
-    navigate(`/book-equipment-confirmation/${ItemID}`, {
-      state: { date: selectedDate, returndate: selectedReturnDate, quantity: quantityState },
-    });
-    setIsLoading(false);
-    }, 1000);
   };
 
   return (
@@ -117,7 +139,7 @@ const BookEquipmentDateTime = () => {
               <input
                 type="date"
                 value={selectedReturnDate}
-                onChange={(e) => setSelectedReturnDate(e.target.value)}
+                onChange={handleReturnDateChange}
               />
             ) : (
               <p className="time-message">Please select a date before choosing a return date.</p>
@@ -144,7 +166,6 @@ const BookEquipmentDateTime = () => {
             )}
           </div>
 
-          {/* My Cart Section */}
           <div className="my-cart">
             <h2>My Cart</h2>
             <div className="divider"></div>
@@ -164,7 +185,7 @@ const BookEquipmentDateTime = () => {
 
               <div className="cart-image">
                 <img
-                  src={`http://localhost:5000/images/${item?.SportPic}`} // Assuming the equipment image is served from the backend
+                  src={`http://localhost:5000/images/${item?.SportPic}`}
                   alt={item?.ItemName}
                 />
               </div>
@@ -172,7 +193,6 @@ const BookEquipmentDateTime = () => {
 
             <div className="divider"></div>
 
-            {/* Booking Details Section */}
             {selectedReturnDate && (
               <div className="booking-info">
                 <strong>Booking Details</strong>

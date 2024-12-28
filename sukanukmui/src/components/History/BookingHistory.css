@@ -26,6 +26,35 @@
     margin-bottom: 20px;
 }
 
+/* Container for the toggle buttons */
+.toggle-button-container {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0;
+  }
+  
+  /* Style for each button */
+  .toggle-button-container button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: 1px;
+    font-size: 16px;
+    transition: background-color;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  /* Style for the active button */
+  .toggle-button-container button.active {
+    background-color: #0056d2;
+    color: white;
+  }
+  
+  /* Hover effect */
+  .toggle-button-container button:hover {
+    background-color: #ddd;
+  }
+
 /* Booking List Section */
 .booking-history-list h2 {
     font-size: 1.8rem;
@@ -99,6 +128,26 @@
 
 .view-button:hover {
     background-color: #360062;
+}
+
+/* Cancel Button Styles */
+.cancel-button {
+    width: 100%;
+    padding: 10px 16px;
+    background-color: #d9534f;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-top: 12px;
+    text-align: center;
+}
+
+.cancel-button:hover {
+    background-color: #c9302c;
 }
 
 /* Responsive Design */
