@@ -153,7 +153,7 @@ const BookingItemHistory = () => {
               </button>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="cancel-button"
+                className="cancel-button-booking"
               >
                 Cancel
               </button>
