@@ -28,7 +28,13 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+  
+    // Check for password length
+    if (credentials.password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+  
     try {
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
@@ -39,17 +45,16 @@ function Login() {
       });
   
       const data = await response.json();
-      
+  
       if (response.ok) {
-        // Store complete user data including role and details
         const userData = {
           ...data.user,
           role: data.role,
-          details: data.details
+          details: data.details,
         };
-        
+  
         login(userData);
-        navigate('/home'); // Navigate to home page for all users
+        navigate('/home');
       } else {
         setError(data.message || 'Login failed');
       }
@@ -58,6 +63,7 @@ function Login() {
       setError('An error occurred during login');
     }
   };
+  
 
   const handleForgotPassword = () => {
     navigate('/forgot-password');
@@ -76,7 +82,7 @@ function Login() {
         </div>
 
         <form className="login-form" onSubmit={handleSubmit}>
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="error-message-login">{error}</div>}
           
           <div className="input-group">
             <div className="input-container">

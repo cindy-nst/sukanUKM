@@ -7,27 +7,31 @@ function ForgotPassword() {
   const [formData, setFormData] = useState({
     email: '',
     newPassword: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
+  const [modalInfo, setModalInfo] = useState({ isOpen: false, title: '', message: '' });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.newPassword !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      setModalInfo({
+        isOpen: true,
+        title: 'Error',
+        message: 'Passwords do not match!',
+      });
       return;
     }
 
     try {
-      // Send a request to the backend to reset the password
       const response = await fetch('http://localhost:5000/forgot-password', {
         method: 'POST',
         headers: {
@@ -38,14 +42,31 @@ function ForgotPassword() {
 
       const data = await response.json();
       if (response.ok) {
-        alert('Password successfully reset. You can now log in with the new password.');
-        navigate('/login');
+        setModalInfo({
+          isOpen: true,
+          title: 'Success',
+          message: 'Password successfully reset. You can now log in with the new password.',
+        });
       } else {
-        setErrorMessage(data.message || 'Password reset failed.');
+        setModalInfo({
+          isOpen: true,
+          title: 'Error',
+          message: data.message || 'Password reset failed.',
+        });
       }
     } catch (error) {
-      console.error('Error during password reset:', error);
-      setErrorMessage('An error occurred while resetting your password.');
+      setModalInfo({
+        isOpen: true,
+        title: 'Error',
+        message: 'An error occurred while resetting your password.',
+      });
+    }
+  };
+
+  const closeModal = () => {
+    setModalInfo({ isOpen: false, title: '', message: '' });
+    if (modalInfo.title === 'Success') {
+      navigate('/login');
     }
   };
 
@@ -89,7 +110,7 @@ function ForgotPassword() {
             <div className="input-container">
               <span className="icon">
                 <svg viewBox="0 0 20 20">
-                  <path d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2z" />
+                  <path d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2-2 0-01-2-2z" />
                 </svg>
               </span>
               <input
@@ -107,7 +128,7 @@ function ForgotPassword() {
             <div className="input-container">
               <span className="icon">
                 <svg viewBox="0 0 20 20">
-                  <path d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2z" />
+                  <path d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2-2 0-01-2-2z" />
                 </svg>
               </span>
               <input
@@ -125,6 +146,19 @@ function ForgotPassword() {
             Submit
           </button>
         </form>
+
+        {/* Modal */}
+        {modalInfo.isOpen && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h3 className="modal-title">{modalInfo.title}</h3>
+              <p className="modal-message">{modalInfo.message}</p>
+              <button className="modal-close-button" onClick={closeModal}>
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

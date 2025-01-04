@@ -51,6 +51,10 @@ app.use('/images', express.static(path.join(__dirname, 'uploads')));
 app.post('/login', (req, res) => {
   const { username, password } = req.body;
 
+  if (password.length < 8) {
+    return res.status(400).json({ message: 'Password must be at least 8 characters long' });
+  }
+
   // First, check the user credentials and get basic user info
   const userQuery = 'SELECT * FROM user WHERE UserID = ?';
   db.execute(userQuery, [username], (err, userResults) => {
