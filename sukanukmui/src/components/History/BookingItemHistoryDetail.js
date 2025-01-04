@@ -23,7 +23,7 @@ const BookingItemHistoryDetail = () => {
   };
 
   const handleProceed = () => {
-    navigate("/home");
+    navigate("/booking-item-history");
   };
 
   useEffect(() => {
@@ -140,7 +140,7 @@ const BookingItemHistoryDetail = () => {
             }}
             onClick={handleProceed}
           >
-            Home
+            Done
           </button>
         </div>
       </div>

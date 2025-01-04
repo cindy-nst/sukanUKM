@@ -10,7 +10,7 @@ const BookingHistoryDetail = () => {
   const [error, setError] = useState(null);
 
   const handleProceed = () => {
-    navigate("/home");
+    navigate("/booking-history");
 };
 
   useEffect(() => {
@@ -120,7 +120,7 @@ const BookingHistoryDetail = () => {
             }}
             onClick={handleProceed}
           >
-            Home
+            Done
           </button>
         </div>
       </div>
