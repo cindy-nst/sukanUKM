@@ -1065,3 +1065,48 @@ app.delete('/api/cancelCourtBooking/:id', (req, res) => {
     }
   });
 });
+
+// API endpoint for fetching booking equipment data
+app.get("/api/reportbookingequipment", (req, res) => {
+  const query = `
+    SELECT 
+      b.BookingItemID, 
+      s.StudentName, 
+      se.ItemName, 
+      b.BookingDate, 
+      b.BookingItemDate, 
+      b.BookingItemReturnedDate, 
+      b.BookingItemQuantity
+    FROM 
+      bookingsportequipment b
+    JOIN 
+      student s ON b.StudentID = s.StudentID
+    JOIN 
+      sportequipment se ON b.ItemID = se.ItemID;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching bookings:", err);
+      res.status(500).json({ error: "Failed to fetch bookings" });
+    } else {
+      // Function to format date to dd/mm/yyyy
+      const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        const day = String(date.getDate()).padStart(2, '0'); // Ensure 2-digit day
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Ensure 2-digit month
+        const year = date.getFullYear();
+        return `${year}-${month}-${day}`;
+      };
+
+      // Format dates before sending response
+      const formattedResults = results.map((booking) => ({
+        ...booking,
+        BookingDate: formatDate(booking.BookingDate),
+      }));
+
+      console.log("Formatted Results:", formattedResults); // Log formatted results
+      res.json(formattedResults); // Send the formatted data
+    }
+  });
+});
