@@ -96,9 +96,6 @@ const Venues = () => {
             ))
           )}
         </div>
-        <button className="see-more-button" onClick={handleSeeMore}>
-          See more venues
-        </button>
       </div>
 
     </div>

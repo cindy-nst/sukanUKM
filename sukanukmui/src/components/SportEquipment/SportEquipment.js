@@ -85,9 +85,6 @@ const SportEquipment = () => {
             </Link>
           ))}
         </div>
-        <button className="see-more-button" onClick={handleSeeMore}>
-          See more equipment
-        </button>
       </div>
 
       {/* Floating Action Button */}

@@ -115,9 +115,6 @@ const BookEquipment = () => {
             </div>
           ))}
         </div>
-        <button className="see-more-button" onClick={handleSeeMore}>
-          See more equipment
-        </button>
       </div>
     </div>
   );
