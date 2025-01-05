@@ -112,8 +112,8 @@ const handleSubmit = async (e) => {
       
       <div className="edit-equipment-form-container">
         <form onSubmit={handleSubmit} className="edit-equipment-form">
-          <div className="image-upload-section">
-            <div className="image-preview">
+          <div className="editequipmentimage-upload-section">
+            <div className="editequipmentimage-preview">
               {imagePreview && (
                 <img 
                   src={imagePreview}
@@ -122,10 +122,10 @@ const handleSubmit = async (e) => {
               )}
             </div>
             <div className="upload-button">
-              <label htmlFor="image-upload" className="upload-label">
+              <label htmlFor="editequipmentimage-upload" className="upload-label">
                 Upload Photo
                 <input
-                  id="image-upload"
+                  id="editequipmentimage-upload"
                   type="file"
                   accept="image/*"
                   onChange={handleImageUpload}
