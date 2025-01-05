@@ -197,7 +197,7 @@ const BookCourtDate = () => {
         <div className="booking-steps">
           <div className="step active">Booking Details</div>
           <div className="step">Confirmation</div>
-          <div className="step">Done</div>
+          <div className="step">Complete</div>
         </div>
 
         <div className="booking-details-container">

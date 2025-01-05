@@ -52,15 +52,12 @@ const BookingHistoryDetail = () => {
       </div>
   
       <div className="book-court-container1">
-        {/* Booking Steps */}
-        <div className="booking-steps">
-          <div className="step active">Done</div>
-        </div>
+        
   
         {/* Booking Complete Section */}
         <div className="title">
-          <h1>Booking Complete!</h1>
-          <h2>Thank you for your booking</h2>
+          <h1>Your Booking Details</h1>
+          
         </div>
   
         {/* Booking Details Section */}
@@ -120,7 +117,7 @@ const BookingHistoryDetail = () => {
             }}
             onClick={handleProceed}
           >
-            Done
+            Back
           </button>
         </div>
       </div>
