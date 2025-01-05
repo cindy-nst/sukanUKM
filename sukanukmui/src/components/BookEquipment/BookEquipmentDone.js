@@ -64,7 +64,7 @@ const BookEquipmentDone = () => {
         <div className="booking-steps">
           <div className="step">Booking Details</div>
           <div className="step">Confirmation</div>
-          <div className="step active">Done</div>
+          <div className="step active">Complete</div>
         </div>
 
         {/* Booking Complete Section */}
@@ -133,7 +133,7 @@ const BookEquipmentDone = () => {
             }}
             onClick={handleProceed}
           >
-            Home
+            Done
           </button>
         </div>
       </div>

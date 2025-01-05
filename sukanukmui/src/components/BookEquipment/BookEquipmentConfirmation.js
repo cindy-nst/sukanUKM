@@ -115,7 +115,7 @@ const BookEquipmentConfirmation = () => {
         <div className="booking-steps">
           <div className="step">Booking Details</div>
           <div className="step active">Confirmation</div>
-          <div className="step">Done</div>
+          <div className="step">Complete</div>
         </div>
 
         {/* My Cart Section */}
