@@ -250,3 +250,18 @@
 .modal-buttons button:hover {
   opacity: 0.9; /* Slight transparency effect on hover */
 }
+
+.okay-button {
+    background-color: blue;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+  }
+  
+  .okay-button:hover {
+    background-color: darkblue;
+  }
+  

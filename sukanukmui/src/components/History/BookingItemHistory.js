@@ -11,7 +11,9 @@ const BookingItemHistory = () => {
   const [view, setView] = useState('active');  // New state to toggle between active and past bookings
 
   // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false); // Confirmation modal for cancellation
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false); // Success modal after cancellation
+  const [modalMessage, setModalMessage] = useState(""); // Message to display in success modal
   const [bookingToCancel, setBookingToCancel] = useState(null);
 
   useEffect(() => {
@@ -50,11 +52,13 @@ const BookingItemHistory = () => {
           prevBookings.filter((booking) => booking.BookingItemID !== bookingToCancel)
         );
   
-        alert('Booking cancelled successfully.');
+        setModalMessage('Booking cancelled successfully.');
+        setIsSuccessModalOpen(true); // Open success modal after cancellation
       } catch (err) {
-        alert(err.message);
+        setModalMessage(`Error: ${err.message}`);
+        setIsSuccessModalOpen(true); // Open success modal with error message
       } finally {
-        setIsModalOpen(false); // Close the modal after the action
+        setIsConfirmationModalOpen(false); // Close confirmation modal
       }
     }
   };
@@ -124,7 +128,7 @@ const BookingItemHistory = () => {
                         className="cancel-button"
                         onClick={() => {
                           setBookingToCancel(booking.BookingItemID); // Fix: Using BookingItemID for cancellation
-                          setIsModalOpen(true);
+                          setIsConfirmationModalOpen(true);
                         }}
                       >
                         Cancel
@@ -138,8 +142,8 @@ const BookingItemHistory = () => {
         </div>
       </div>
 
-      {/* Modal for delete confirmation */}
-      {isModalOpen && (
+      {/* Confirmation Modal for cancellation */}
+      {isConfirmationModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h2>Confirm Cancellation</h2>
@@ -152,10 +156,28 @@ const BookingItemHistory = () => {
                 Confirm
               </button>
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => setIsConfirmationModalOpen(false)}
                 className="cancel-button-booking"
               >
-                Cancel
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Success Modal after cancellation */}
+      {isSuccessModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Success</h2>
+            <p>{modalMessage}</p>
+            <div className="modal-buttons">
+              <button 
+                onClick={() => setIsSuccessModalOpen(false)} // Close the modal
+                className="okay-button"
+              >
+                Okay
               </button>
             </div>
           </div>

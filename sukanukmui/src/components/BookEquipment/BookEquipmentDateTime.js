@@ -7,13 +7,14 @@ const BookEquipmentDateTime = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { date, returndate, quantity } = location.state || {};
-
   const { ItemID } = useParams();
   const [item, setItem] = useState(null);
   const [selectedDate, setSelectedDate] = useState(date || "");
   const [selectedReturnDate, setSelectedReturnDate] = useState(returndate || "");
   const [quantityState, setQuantity] = useState(quantity || 1);
   const [isLoading, setIsLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -41,7 +42,7 @@ const BookEquipmentDateTime = () => {
     if (newQuantity > 0 && newQuantity <= (item?.AvailableQuantity || 0)) {
       setQuantity(newQuantity);
     } else {
-      alert("Quantity exceeds availability.");
+      openModal("Quantity exceeds availability.");
     }
   };
 
@@ -56,25 +57,35 @@ const BookEquipmentDateTime = () => {
       const diffDays = diffTime / (1000 * 60 * 60 * 24);
 
       if (diffDays > 2) {
-        alert("The return date cannot be more than 3 days after the selected start date.");
+        openModal("The return date cannot be more than 3 days after the selected start date.");
         setSelectedReturnDate(""); // Clear invalid date
       } else if (diffDays < 0) {
-        alert("The return date cannot be earlier than the selected start date.");
+        openModal("The return date cannot be earlier than the selected start date.");
         setSelectedReturnDate(""); // Clear invalid date
       } else {
         setSelectedReturnDate(newReturnDate); // Set valid date
       }
     } else {
-      alert("Please select a start date first.");
+      openModal("Please select a start date first.");
       setSelectedReturnDate(""); // Clear invalid date
     }
+  };
+
+  const openModal = (message) => {
+    setModalMessage(message);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalMessage("");
   };
 
   const handleProceed = () => {
     setIsLoading(true);
     setTimeout(() => {
       if (!selectedDate || !selectedReturnDate || quantityState <= 0) {
-        alert("Please fill in all the required fields.");
+        openModal("Please fill in all the required fields.");
         return;
       }
       navigate(`/book-equipment-confirmation/${ItemID}`, {
@@ -208,12 +219,28 @@ const BookEquipmentDateTime = () => {
               </div>
             )}
             <br />
-            <button className="proceed-button" onClick={handleProceed}>
+            <button
+              className="proceed-button"
+              onClick={handleProceed}
+              disabled={!selectedDate || !selectedReturnDate || quantityState <= 0}
+            >
               Proceed
             </button>
           </div>
         </div>
       </div>
+
+      {/* Modal Component */}
+      {isModalOpen && (
+        <div className="modal-overlay-bedt">
+          <div className="modal-bedt">
+            <div className="modal-content-bedt">
+              <p>{modalMessage}</p>
+              <button onClick={closeModal} className="close-modal-bedt-button">Close</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
