@@ -56,23 +56,6 @@ const Navbar = () => {
       )}
 
       <div className="nav-controls">
-        <div className="language-switcher">
-          <button 
-            onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-            className="lang-btn"
-          >
-            EN
-          </button>
-          {isLanguageOpen && (
-            <div className="dropdown-menu">
-              <button onClick={() => console.log('Switch to English')}>English</button>
-              <button onClick={() => console.log('Switch to Malay')}>Bahasa Melayu</button>
-            </div>
-          )}
-        </div>
-
-        <Link to="/help" className="help-btn">Help</Link>
-
         {user && (
           <div className="profile-section">
             <button 
