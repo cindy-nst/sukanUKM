@@ -27,7 +27,7 @@ const HeroStudent = () => {
 
   return (
     <div className="hero-student">
-      <h1>WELCOME TO SUKAN UKM</h1>
+      <h1>WELCOME TO SUKANUKM</h1>
       <h2>{userName || 'Loading...'}</h2>
     </div>
   );
