@@ -175,17 +175,24 @@ const getFilteredBookingsByCourt = () => {
 
 // Generate Line Graph Data
 const generateLineGraphData = () => {
-  const filteredBookings2 = getFilteredBookingsByCourt();
+  // Step 1: Filter bookings by time filter
+  const timeFilteredBookings = getFilteredBookings();
 
-  // Extract unique booking times and sort them
-  const bookingTimes = filteredBookings2.map((booking) => booking.BookingCourtTime);
+  // Step 2: Further filter the time-filtered bookings by selected court
+  const filteredBookingsByCourt = selectedCourt === "All Courts"
+    ? timeFilteredBookings
+    : timeFilteredBookings.filter((booking) => booking.CourtName === selectedCourt);
+
+  // Step 3: Extract unique booking times and count them
+  const bookingTimes = filteredBookingsByCourt.map((booking) => booking.BookingCourtTime);
   const timeCounts = bookingTimes.reduce((acc, time) => {
     acc[time] = (acc[time] || 0) + 1;
     return acc;
   }, {});
 
-  const labels = Object.keys(timeCounts); // Times (e.g., 8:00 AM - 9:00 AM)
-  const data = Object.values(timeCounts); // Number of bookings for each time
+  // Step 4: Prepare labels and data for the line graph
+  const labels = Object.keys(timeCounts); // Times (e.g., "8:00 AM - 9:00 AM")
+  const data = Object.values(timeCounts); // Count of bookings for each time
 
   return {
     labels,
