@@ -1110,3 +1110,60 @@ app.get("/api/reportbookingequipment", (req, res) => {
     }
   });
 });
+
+// API route to get booking data for court report
+app.get("/api/reportbookingcourt", (req, res) => {
+  const query = `
+    SELECT 
+      bc.BookingCourtID, 
+      s.StudentName, 
+      c.CourtName, 
+      bc.BookingDate, 
+      bc.BookingCourtDate, 
+      bc.BookingCourtTime
+    FROM 
+      bookingcourt bc
+    JOIN 
+      student s ON bc.StudentID = s.StudentID
+    JOIN 
+      court c ON bc.CourtID = c.CourtID;
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("Error fetching booking court data:", err);
+      res.status(500).json({ error: "Failed to fetch booking court data" });
+    } else {
+      // Function to format date to yyyy-mm-dd
+      const formatDate = (dateStr) => {
+        const date = new Date(dateStr);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${year}-${month}-${day}`;
+      };
+
+      // Function to format "10 Dec 2024, Tuesday" into "yyyy-mm-dd"
+      const formatDateFromText = (dateStr) => {
+        if (!dateStr || typeof dateStr !== "string") return null; // Handle invalid values
+        const cleanedDateStr = dateStr.split(",")[0]; // Extract "10 Dec 2024"
+        const date = new Date(cleanedDateStr);
+        if (isNaN(date)) return null; // Handle invalid dates
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${year}-${month}-${day}`;
+      };
+
+      // Format dates before sending the response
+      const formattedResults = results.map((booking) => ({
+        ...booking,
+        BookingDate: formatDate(booking.BookingDate),
+        BookingCourtDate: formatDateFromText(booking.BookingCourtDate),
+      }));
+
+      console.log("Formatted Results:", formattedResults); // Log formatted results for debugging
+      res.json(formattedResults); // Send the formatted data as a response
+    }
+  });
+});
