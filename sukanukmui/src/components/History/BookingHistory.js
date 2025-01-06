@@ -120,11 +120,16 @@ const BookingHistory = () => {
                 <div className="booking-image">
                   <img
                     src={`http://localhost:5000/images/${booking.CourtPic}`}
-                    alt={booking.CourtName}
+                    alt={booking.CourtPic}
                   />
                 </div>
                 <div className="booking-info">
-                  <h3 className="booking-title">{booking.CourtName}</h3>
+                  <h3 className="booking-courtID">{booking.BookingCourtID}</h3>
+                  <p className="booking-courtname">
+                    <span style={{fontWeight: 'bold'}}> Court Name: </span>
+                    {booking.CourtName}
+                  </p>
+                
                   <p className="booking-date">
                     <span style={{ fontWeight: 'bold' }}>Booking Date: </span>
                     {booking.BookingCourtDate}

@@ -107,11 +107,15 @@ const BookingItemHistory = () => {
                 <div className="booking-image">
                   <img
                     src={`http://localhost:5000/images/${booking.SportPic}`}
-                    alt={booking.ItemName}
+                    alt={booking.SportPic}
                   />
                 </div>
                 <div className="booking-info">
-                  <h3 className="booking-title">Item: {booking.ItemID}</h3>
+                  <h3 className="booking-title">{booking.BookingItemID}</h3>
+                  <p className="booking-itemname">
+                    <span style={{fontWeight:'bold'}}> Item: </span>
+                    {booking.ItemName}
+                  </p>
                   <p className="booking-date">
                     <span style={{ fontWeight: 'bold' }}>Booking Date: </span>{formatDate(booking.BookingItemDate)}<br />
                     <span style={{ fontWeight: 'bold' }}>Return Date: </span>{formatDate(booking.BookingItemReturnedDate)}
