@@ -3,6 +3,20 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import courtbanner from "../../images/bannercourt.jpg"; // Importing banner image
 import "./BookCourtDate.css"; // Importing CSS
 
+// Modal Component
+const Modal = ({ message, onClose }) => (
+  <div className="modal-overlay-bcd">
+    <div className="modal-content-bcd">
+      <div className="modal-body-bcd">
+        <p>{message}</p>
+      </div>
+      <div className="modal-footer-bcd">
+        <button onClick={onClose}>Close</button>
+      </div>
+    </div>
+  </div>
+);
+
 const BookCourtDate = () => {
   const navigate = useNavigate();
   const { CourtID } = useParams();
@@ -16,6 +30,8 @@ const BookCourtDate = () => {
   const [selectedTimes, setSelectedTimes] = useState(initialTimes || []);
   const [formattedDate, setFormattedDate] = useState("");
   const [bookedTimes, setBookedTimes] = useState([]); // Store booked times
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const [modalMessage, setModalMessage] = useState(""); // Modal message
 
   // Fetch court details
   useEffect(() => {
@@ -138,33 +154,75 @@ const BookCourtDate = () => {
     } 
   };  
 
-  // Toggle time selection
-  const handleTimeSelect = (time) => {
-    if (!bookedTimes.includes(time)) {
-      setSelectedTimes((prev) => {
-        const updatedTimes = prev.includes(time)
-          ? prev.filter((t) => t !== time) // Remove the time if already selected
-          : [...prev, time]; // Add the time if not selected
-        
-        // Sort the updated times array in chronological order
-        return updatedTimes.sort((a, b) => {
-          const parseTime = (t) => {
-            const [hour, minute, period] = t.match(/(\d+):(\d+)\s([AP]M)/).slice(1);
-            let totalMinutes = parseInt(hour) % 12 * 60 + parseInt(minute);
-            if (period === "PM") totalMinutes += 12 * 60;
-            return totalMinutes;
-          };
-          return parseTime(a) - parseTime(b);
-        });
-      });
+  const groupTimes = (times) => {
+    if (times.length === 0) return [];
+    
+    const groupedRanges = [];
+    const indices = times.map((time) => predefinedTimes.indexOf(time)).sort((a, b) => a - b);
+  
+    let start = indices[0];
+    for (let i = 1; i < indices.length; i++) {
+      if (indices[i] !== indices[i - 1] + 1) {
+        groupedRanges.push(`${predefinedTimes[start].split(" - ")[0]} - ${predefinedTimes[indices[i - 1]].split(" - ")[1]}`);
+        start = indices[i];
+      }
     }
+    groupedRanges.push(`${predefinedTimes[start].split(" - ")[0]} - ${predefinedTimes[indices[indices.length - 1]].split(" - ")[1]}`);
+  
+    return groupedRanges;
   };
   
+  // Toggle time selection
+  const handleTimeSelect = (time) => {
+    if (bookedTimes.includes(time)) {
+      setModalMessage(`${time} is already booked.`);
+      setIsModalOpen(true); // Open the modal instead of alert
+      return;
+    }
+  
+    setSelectedTimes((prev) => {
+      const updatedTimes = [...prev];
+      const timeIndex = predefinedTimes.indexOf(time);
+  
+      if (updatedTimes.includes(time)) {
+        // Deselect time and all subsequent times
+        const timeToRemoveIndex = updatedTimes.indexOf(time);
+        return updatedTimes.slice(0, timeToRemoveIndex);
+      } else {
+        // Add time and intermediate times
+        updatedTimes.push(time);
+        updatedTimes.sort(
+          (a, b) => predefinedTimes.indexOf(a) - predefinedTimes.indexOf(b)
+        );
+  
+        const startIndex = predefinedTimes.indexOf(updatedTimes[0]);
+        const endIndex = predefinedTimes.indexOf(updatedTimes[updatedTimes.length - 1]);
+  
+        for (let i = startIndex; i <= endIndex; i++) {
+          if (!updatedTimes.includes(predefinedTimes[i])) {
+            if (bookedTimes.includes(predefinedTimes[i])) {
+              //setModalMessage(`${predefinedTimes[i]} is already booked. Cannot select range.`);
+              setModalMessage(`The time range cannot be selected because some slots within this range are already reserved.`);
+              setIsModalOpen(true); // Open the modal
+              return prev; // Prevent selection if any intermediate slot is booked
+            }
+            updatedTimes.push(predefinedTimes[i]);
+          }
+        }
+  
+        updatedTimes.sort(
+          (a, b) => predefinedTimes.indexOf(a) - predefinedTimes.indexOf(b)
+        );
+        return updatedTimes;
+      }
+    });
+  };
 
   // Proceed to confirmation
   const handleProceed = () => {
     if (!selectedDate || selectedTimes.length === 0) {
-      alert("Please select both a date and at least one time slot.");
+      setModalMessage("Please select both a date and at least one time slot.");
+      setIsModalOpen(true); // Open the modal if conditions aren't met
       return;
     }
     setIsLoading(true);
@@ -176,6 +234,8 @@ const BookCourtDate = () => {
     }, 1000);
   };
 
+  const closeModal = () => setIsModalOpen(false);
+
   return (
     <div>
       {isLoading && (
@@ -183,6 +243,9 @@ const BookCourtDate = () => {
           <div className="spinner"></div>
         </div>
       )}
+
+      {isModalOpen && <Modal message={modalMessage} onClose={closeModal} />}
+
       <div
         className="header-banner"
         style={{
@@ -229,10 +292,10 @@ const BookCourtDate = () => {
                     key={index}
                     className={`time-slot ${selectedTimes.includes(time) ? "selected" : ""}`}
                     onClick={() => handleTimeSelect(time)}
-                    disabled={bookedTimes.includes(time)} // Disable if the time is already booked
+                    disabled={bookedTimes.includes(time)} // Disable if already booked
                   >
                     {time}
-                  </button>                
+                  </button>                        
                 ))}
               </div>
             ) : (
@@ -286,8 +349,9 @@ const BookCourtDate = () => {
               <div className="booking-info">
                 <strong>Booking Details</strong>
                 <p>{formattedDate || "Not selected"}</p>
-                <p>{selectedTimes.length > 0 ? selectedTimes.join(", ") : "Not selected"}</p>
+                <p>{selectedTimes.length > 0 ? groupTimes(selectedTimes).join(", ") : "Not selected"}</p>
               </div>
+            
             )}
             <br />
             {/* Proceed Button */}

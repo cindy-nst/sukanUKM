@@ -140,7 +140,7 @@ const BookDone = () => {
             <div className="divider2"></div>
             <span className="label-text1">Time:</span>
             <div className="date-time-section1">
-              {times?.length > 0 ? times.join(", ") : "Not selected"}
+              {times?.length > 0 ? `${times[0].split(" - ")[0]} - ${times[times.length - 1].split(" - ")[1]}` : "Not selected"}
             </div>
           </div>
           

@@ -11,10 +11,10 @@ const BookConfirmation = () => {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const { date, times } = location.state || {};
-  const [court, setCourt] = useState(null); //backend
+  const [court, setCourt] = useState(null); // Backend data for court
   const [locationName, setLocationName] = useState(null); // Location name
 
-  // Fetch court details :-backend
+  // Fetch court details from backend
   useEffect(() => {
     const fetchCourtDetails = async () => {
       setIsLoading(true);
@@ -39,7 +39,7 @@ const BookConfirmation = () => {
     };
 
     fetchCourtDetails();
-  }, [CourtID],[user]);
+  }, [CourtID]);
 
   // Fetch location name from Mapbox API
   const fetchLocationName = async (lat, lng) => {
@@ -59,7 +59,6 @@ const BookConfirmation = () => {
       setLocationName(`${lat}, ${lng}`); // Fallback to coordinates in case of an error
     }
   };
-  
 
   const formatDate = (date) => {
     if (!date) return "Not selected";
@@ -78,52 +77,53 @@ const BookConfirmation = () => {
     setIsLoading(true); // Start loading animation
     setTimeout(() => {
       console.log(date);
-    // Navigate back to the booking details page for edits
-    navigate(`/book/${CourtID}`, {
-      state: {
-        date: date,
-        times: times,
-      },
-    });
-    setIsLoading(false); // Stop loading animation after navigation
-}, 1000);
+      // Navigate back to the booking details page for edits
+      navigate(`/book/${CourtID}`, {
+        state: {
+          date: date,
+          times: times,
+        },
+      });
+      setIsLoading(false); // Stop loading animation after navigation
+    }, 1000);
   };
 
   const handleProceed = () => {
     setIsLoading(true);
     setTimeout(async () => {
-    const bookingData = {
-      CourtID: CourtID,
-      StudentID: user.UserID,
-      BookingCourtTime: times.join(", "),
-      BookingCourtDate: formatDate(date),
-    };
-  
-    try {
-      const response = await fetch('http://localhost:5000/api/addBookingCourt', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(bookingData),
-      });
-  
-      const result = await response.json();
-      if (response.ok) {
-        //alert(result.message);
-        navigate(`/book-done/${CourtID}`, {
-          state: { date, times, bookingCourtID: result.bookingCourtID},
-          replace: true, // This replaces the current history entry
+      const formattedTimes = `${times[0].split(" - ")[0]} - ${times[times.length - 1].split(" - ")[1]}`;
+      const bookingData = {
+        CourtID: CourtID,
+        StudentID: user.UserID,
+        BookingCourtTime: formattedTimes,
+        BookingCourtDate: formatDate(date),
+      };
+    
+      try {
+        const response = await fetch('http://localhost:5000/api/addBookingCourt', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(bookingData),
         });
-      } else {
-        alert(result.message || 'Failed to add court');
+    
+        const result = await response.json();
+        if (response.ok) {
+          //alert(result.message);
+          navigate(`/book-done/${CourtID}`, {
+            state: { date, times, bookingCourtID: result.bookingCourtID },
+            replace: true, // This replaces the current history entry
+          });
+        } else {
+          alert(result.message || 'Failed to add court');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while adding the court');
       }
-    } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred while adding the court');
-    }
-    setIsLoading(false);
-  }, 1000);
+      setIsLoading(false);
+    }, 1000);
   };
 
   return (
@@ -208,7 +208,7 @@ const BookConfirmation = () => {
             </p>
             <span className="label-text">Time:</span>
             <div className="date-time-section">
-              {times?.length > 0 ? times.join(", ") : "Not selected"}
+              {times?.length > 0 ? `${times[0].split(" - ")[0]} - ${times[times.length - 1].split(" - ")[1]}` : "Not selected"}
             </div>
           </div>
           <br />

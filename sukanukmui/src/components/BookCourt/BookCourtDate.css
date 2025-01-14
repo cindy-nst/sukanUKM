@@ -420,4 +420,42 @@ h1 {
   }
 }
 
+/* Modal Styles */
+.modal-overlay-bcd {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
 
+.modal-content-bcd {
+  background-color: white;
+  border-radius: 10px;
+  width: 300px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Center content inside the modal */
+}
+
+.modal-body-bcd {
+  margin-bottom: 20px;
+}
+
+.modal-footer-bcd button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-footer-bcd button:hover {
+  background-color: #0056b3;
+}
