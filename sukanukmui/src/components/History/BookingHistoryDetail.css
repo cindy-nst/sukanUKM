@@ -1,17 +1,29 @@
-.header-banner {
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-size: cover;
-  background-position: center;
-  color: white;
+/* Main container styles */
+.bookinghistory-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+  min-height: 100vh;
 }
 
-.heading-1 {
+.bookinghistory-banner {
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+              url('../../images/court.jpg');
+  background-size: cover;
+  background-position: center;
+  padding: 60px 20px;
+  border-radius: 10px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.bookinghistory-banner h1 {
+  color: white;
   font-size: 2.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
-} 
+  margin-bottom: 20px;
+}
 
 .booking-detail-container {
     font-family: Arial, sans-serif;

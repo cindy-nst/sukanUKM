@@ -57,16 +57,10 @@ const BookingItemHistoryDetail = () => {
   }
 
   return (
-    <div>
+    <div className="bookingitemhistory-container">
       {/* Header Banner */}
-      <div
-        className="header-banner"
-        style={{
-          backgroundImage: `url(${courtbanner})`,
-          borderRadius: "0px",
-        }}
-      >
-        <h1 className="heading-1">Booking History</h1>
+      <div className="bookingitemhistory-banner">
+        <h1>Booking History</h1>
       </div>
   
       <div className="book-court-container1">

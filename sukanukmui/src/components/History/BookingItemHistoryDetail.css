@@ -1,12 +1,30 @@
-.header-banner {
-    height: 200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-size: cover;
-    background-position: center;
-    color: white;
-  }
+/* Main container styles */
+.bookingitemhistory-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  position: relative;
+  min-height: 100vh;
+}
+
+.bookingitemhistory-banner {
+  background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+              url('../../images/equipment.jpg');
+  background-size: cover;
+  background-position: center;
+  padding: 60px 20px;
+  border-radius: 10px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.bookingitemhistory-banner h1 {
+  color: white;
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
   
   .heading-1 {
     font-size: 2.5rem;
