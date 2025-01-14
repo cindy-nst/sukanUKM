@@ -47,16 +47,12 @@ const BookEquipmentDone = () => {
   }
 
   return (
-    <div>
+    <div className="bookequipment-container">
       {/* Header Banner */}
       <div
-        className="header-banner"
-        style={{
-          backgroundImage: `url(${equipmentBanner})`,
-          borderRadius: "0px",
-        }}
+        className="bookcourt-banner"
       >
-        <h1 className="heading-1">Book to Play</h1>
+        <h1 className="heading-1">Book Equipment</h1>
       </div>
 
       <div className="book-court-container1">

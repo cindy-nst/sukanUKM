@@ -106,18 +106,15 @@ const BookEquipmentDateTime = () => {
   };
 
   return (
-    <div>
+    <div className="bookequipment-container">
       {isLoading && (
         <div className="loading-overlay">
           <div className="spinner"></div>
         </div>
       )}
+      {/* Header Banner */}
       <div
-        className="header-banner"
-        style={{
-          backgroundImage: `url(${equipmentBanner})`,
-          borderRadius: "0px",
-        }}
+        className="bookcourt-banner"
       >
         <h1 className="heading-1">Book Equipment</h1>
       </div>
