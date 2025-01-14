@@ -127,7 +127,7 @@ const BookConfirmation = () => {
   };
 
   return (
-    <div>
+    <div className="bookingitemhistory-container">
       {isLoading && (
         <div className="loading-overlay">
           <div className="spinner"></div>
@@ -136,11 +136,7 @@ const BookConfirmation = () => {
 
       {/* Header Banner */}
       <div
-        className="header-banner"
-        style={{
-          backgroundImage: `url(${courtbanner})`,
-          borderRadius: "0px",
-        }}
+        className="bookcourt-banner"
       >
         <h1 className="heading-1">Book to Play</h1>
       </div>

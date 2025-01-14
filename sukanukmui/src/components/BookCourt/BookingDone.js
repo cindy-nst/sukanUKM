@@ -74,14 +74,10 @@ const BookDone = () => {
 
 
   return (
-    <div>
+    <div className="bookingitemhistory-container">
       {/* Header Banner */}
       <div
-        className="header-banner"
-        style={{
-          backgroundImage: `url(${courtbanner})`,
-          borderRadius: "0px",
-        }}
+        className="bookcourt-banner"
       >
         <h1 className="heading-1">Book to Play</h1>
       </div>
