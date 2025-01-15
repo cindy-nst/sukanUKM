@@ -97,7 +97,7 @@ const BookDone = () => {
         <h2>Thank you for your booking</h2>
         </div>
         <div className="my-cart1">
-          <h2>Booking Details</h2>
+          <h2>BOOKING ID : {bookingCourtID || "Not available"}</h2>
           <div className="divider1"></div>
           <div className="cart-content1">
             {/* Details Section */}
@@ -138,12 +138,13 @@ const BookDone = () => {
             <div className="date-time-section1">
               {times?.length > 0 ? `${times[0].split(" - ")[0]} - ${times[times.length - 1].split(" - ")[1]}` : "Not selected"}
             </div>
+            
           </div>
           
-          <div class="text-box">
-             BOOKING ID : {bookingCourtID || "Not available"}
-          </div>
+          
+
         </div>
+
         <br/>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
           <button

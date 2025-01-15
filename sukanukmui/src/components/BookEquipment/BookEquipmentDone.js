@@ -71,7 +71,7 @@ const BookEquipmentDone = () => {
 
         {/* Booking Details Section */}
         <div className="my-cart1">
-          <h2>Booking Details</h2>
+          <h2>BOOKING ID: {bookingItemID || "Loading..."}</h2>
           <div className="divider1"></div>
 
           {/* Equipment Section */}
@@ -110,11 +110,6 @@ const BookEquipmentDone = () => {
           </div>
 
           <div className="divider2"></div>
-
-          {/* Booking ID Section */}
-          <div className="text-box">
-          <strong>BOOKING ID:</strong> {bookingItemID || "Loading..."}
-          </div>
         </div>
 
         <br />
