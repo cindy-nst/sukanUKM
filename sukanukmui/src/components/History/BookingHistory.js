@@ -63,15 +63,6 @@ const BookingHistory = () => {
     }
   };
 
-  const formatDate = (date) => {
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = d.toLocaleString("en-GB", { month: "short" });
-    const year = d.getFullYear();
-    const weekday = d.toLocaleString("en-GB", { weekday: "long" });
-    return `${day} ${month} ${year}, ${weekday}`;
-  };
-
   const parseFormattedDate = (dateString) => {
     try {
       const [day, month, year] = dateString.split(",")[0].split(" ");
@@ -84,18 +75,44 @@ const BookingHistory = () => {
       return new Date();
     }
   };
+  
+  const parseTimeRange = (timeRange) => {
+    const [startTime, endTime] = timeRange.split(" - ").map((time) => {
+      const [timeStr, period] = time.split(" ");
+      let [hours, minutes] = timeStr.split(":").map(Number);
+      if (period === "PM" && hours !== 12) hours += 12;
+      if (period === "AM" && hours === 12) hours = 0;
+      return { hours, minutes };
+    });
+    return { startTime, endTime };
+  };
+  
+  const isBookingInFuture = (date, timeRange) => {
+    const currentDateTime = new Date();
+    const bookingDate = parseFormattedDate(date);
+    const { startTime } = parseTimeRange(timeRange);
+  
+    // Set time for bookingDate
+    bookingDate.setHours(startTime.hours, startTime.minutes, 0, 0);
+  
+    return bookingDate >= currentDateTime;
+  };
+  
+  const filteredBookings = view === 'active'
+    ? bookings.filter((booking) => 
+        isBookingInFuture(booking.BookingCourtDate, booking.BookingCourtTime)
+      )
+    : bookings.filter((booking) => 
+        !isBookingInFuture(booking.BookingCourtDate, booking.BookingCourtTime)
+      );
+  
+  if (error) {
+    return <div className="error">{error}</div>;
+  }  
 
   const toggleView = (newView) => {
     setView(newView);
   };
-
-  const filteredBookings = view === 'active'
-    ? bookings.filter((booking) => parseFormattedDate(booking.BookingCourtDate) >= new Date())
-    : bookings.filter((booking) => parseFormattedDate(booking.BookingCourtDate) < new Date());
-
-  if (error) {
-    return <div className="error">{error}</div>;
-  }
 
   return (
     <div className="booking-history-container">
