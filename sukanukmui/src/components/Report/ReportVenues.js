@@ -62,8 +62,10 @@ const ReportVenues = () => {
             throw new Error("Failed to fetch data");
           }
           const data = await response.json();
+          console.log("Fetched Bookings Data:", data); // Add this
           setBookings(data);
         } catch (error) {
+          console.error("Error fetching bookings:", error);
           setError(error.message);
         } finally {
           setLoading(false);
@@ -91,14 +93,17 @@ const ReportVenues = () => {
 
   // Helper function to get the filtered bookings
   const getFilteredBookings = () => {
-    return bookings.filter((booking) => {
-      const bookingDate = new Date(booking.BookingDate);
+    const filtered = bookings.filter((booking) => {
+      const bookingDate = new Date(booking.BookingCourtDate);
       return (
         bookingDate.getFullYear() === selectedYear &&
         bookingDate.getMonth() + 1 === selectedMonth
       );
     });
+    console.log("Filtered Bookings:", filtered); // Log the filtered bookings
+    return filtered;
   };
+  
 
     // Helper function to get filtered upcoming returns
   const getFilteredUpcomingBookings = () => {
@@ -118,12 +123,12 @@ const ReportVenues = () => {
   const dailyCounts = {};
 
   filteredBookings.forEach((booking) => {
-    dailyCounts[booking.BookingDate] = (dailyCounts[booking.BookingDate] || 0) + 1;
+    dailyCounts[booking.BookingCourtDate] = (dailyCounts[booking.BookingCourtDate] || 0) + 1;
   });
 
   // Count the number of bookings for each date
   filteredBookings.forEach((booking) => {
-    dailyCounts[booking.BookingDate] = (dailyCounts[booking.BookingDate] || 0) ;
+    dailyCounts[booking.BookingCourtDate] = (dailyCounts[booking.BookingCourtDate] || 0) ;
   });
 
   // Sort dates and prepare data for the graph
@@ -160,9 +165,10 @@ const generateLineGraphData = () => {
   const timeFilteredBookings = getFilteredBookings();
 
   // Step 2: Further filter the time-filtered bookings by selected court
-  const filteredBookingsByCourt = selectedCourt === "All Courts"
-    ? timeFilteredBookings
-    : timeFilteredBookings.filter((booking) => booking.CourtName === selectedCourt);
+  const filteredBookingsByCourt =
+    selectedCourt === "All Courts"
+      ? timeFilteredBookings
+      : timeFilteredBookings.filter((booking) => booking.CourtName === selectedCourt);
 
   // Step 3: Extract unique booking times and count them
   const bookingTimes = filteredBookingsByCourt.map((booking) => booking.BookingCourtTime);
@@ -172,11 +178,21 @@ const generateLineGraphData = () => {
   }, {});
 
   // Step 4: Prepare labels and data for the line graph
-  const labels = Object.keys(timeCounts); // Times (e.g., "8:00 AM - 9:00 AM")
-  const data = Object.values(timeCounts); // Count of bookings for each time
+  const sortedTimes = Object.keys(timeCounts).sort((a, b) => {
+    // Sort times in chronological order (e.g., "8:00 AM - 9:00 AM")
+    const parseTime = (timeStr) => {
+      const [startTime] = timeStr.split(" - ");
+      const [hours, minutes, meridian] = startTime.match(/(\d+):(\d+) (AM|PM)/).slice(1);
+      const hours24 = meridian === "PM" && hours !== "12" ? parseInt(hours) + 12 : parseInt(hours);
+      return new Date(0, 0, 0, hours24, parseInt(minutes)); // Convert to Date for comparison
+    };
+    return parseTime(a) - parseTime(b);
+  });
+
+  const data = sortedTimes.map((time) => timeCounts[time]);
 
   return {
-    labels,
+    labels: sortedTimes, // Times sorted chronologically
     datasets: [
       {
         label: `Bookings for ${selectedCourt}`,
@@ -227,6 +243,111 @@ const barData = {
       backgroundColor: ["#ff595e", "#ffca3a", "#8ac926", "#1982c4", "#6a4c93"],
     },
   ],
+};
+
+const generatePeakHoursData = () => {
+  const filteredBookings = getFilteredBookings();
+
+  // Filter by selected court if not "All Courts"
+  const bookingsByCourt =
+    selectedCourt === "All Courts"
+      ? filteredBookings
+      : filteredBookings.filter((booking) => booking.CourtName === selectedCourt);
+
+  // Initialize an object with all hours from 7 AM to 11 PM
+  const hourCounts = Array.from({ length: 15 }, (_, i) => `${i + 7}:00`).reduce(
+    (acc, hour) => ({ ...acc, [hour]: 0 }),
+    {}
+  );
+
+  // Process each booking to count usage per hour
+  bookingsByCourt.forEach((booking) => {
+    const [startHour, startPeriod] = booking.BookingCourtTime.split("-")[0].trim().split(" ");
+    const [endHour, endPeriod] = booking.BookingCourtTime.split("-")[1].trim().split(" ");
+
+    let start = convertTo24HourFormat(startHour, startPeriod);
+    let end = convertTo24HourFormat(endHour, endPeriod);
+
+    // Ensure that bookings don't exceed 11 PM
+    if (end > 23) end = 23;
+
+    // Increment counts for each hour in the range
+    for (let hour = start; hour < end; hour++) {
+      const timeSlot = `${hour}:00`;
+      if (hourCounts[timeSlot] !== undefined) {
+        hourCounts[timeSlot]++;
+      }
+    }
+  });
+
+  // Prepare the data for the line graph
+  const labels = Object.keys(hourCounts);
+  const data = Object.values(hourCounts);
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: `Hours Usage (${selectedCourt})`,
+        data,
+        backgroundColor: "rgba(78, 115, 223, 0.6)",
+        borderColor: "#4E7CFF",
+        borderWidth: 2,
+      },
+    ],
+  };
+};
+
+// Helper function to convert time to 24-hour format
+const convertTo24HourFormat = (hour, period) => {
+  let hourNumber = parseInt(hour);
+  if (period === "PM" && hourNumber !== 12) hourNumber += 12;
+  if (period === "AM" && hourNumber === 12) hourNumber = 0;
+  return hourNumber;
+};
+
+const peakHoursData = generatePeakHoursData();
+
+const getBookedVenuesCount = () => {
+  const filteredBookings = getFilteredBookings();
+  const uniqueVenues = new Set(filteredBookings.map((booking) => booking.CourtName));
+  return uniqueVenues.size; // Return the number of unique venues
+};
+
+// Line Graph Options for Peak Hours
+const peakHoursLineGraphOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  scales: {
+    x: {
+      title: {
+        display: true,
+        text: "Time (Hour)",
+        font: {
+          size: 14,
+        },
+      },
+    },
+    y: {
+      title: {
+        display: true,
+        text: "Number of Bookings",
+        font: {
+          size: 14,
+        },
+      },
+      ticks: {
+        beginAtZero: true,
+        stepSize: 1,
+      },
+    },
+  },
+  plugins: {
+    legend: {
+      display: true,
+      position: "top",
+    },
+  },
 };
 
 //Line Options
@@ -352,7 +473,7 @@ const barData = {
         },
         title: {
           display: true,
-          text: "Booking Time",
+          text: "Time (Hours)",
           font: {
             size: 14,
           },
@@ -459,7 +580,7 @@ const renderGraph = () => {
            </div>
           </div>
         <div className="line-chart-container">
-          <Line data={lineGraphData} options={lineGraphOptions} />
+          <Line data={peakHoursData} options={lineGraphOptions} />
         </div>
       </div>
       </div>
@@ -474,12 +595,13 @@ const renderGraph = () => {
   // Function to sort filtered bookings
   const getSortedBookings = () => {
     const filteredBookings = getFilteredBookings();
-    return filteredBookings.sort((a, b) => new Date(a.BookingDate) - new Date(b.BookingDate));
+    return filteredBookings.sort((a, b) => new Date(a.BookingCourtDate) - new Date(b.BookingCourtDate));
   };
 
   // Table rendering
   const renderTable = () => {
     const sortedBookings = getSortedBookings();
+    console.log("Table Data:", sortedBookings); // Add this
     return (
       <div className="table-container">
         <h3>Booking List</h3>
@@ -556,7 +678,7 @@ const renderGraph = () => {
         </div>
         <div className="card orange" onClick={() => setGraphType("totalEquipment")}>
           <h2>TOTAL VENUE</h2>
-          <p>{equipmentNames.length}</p>
+          <p>{getBookedVenuesCount()}</p>
         </div>
         <div className="card red1" onClick={() => setGraphType("upcomingReturns")}>
           <h2>UPCOMING BOOKINGS</h2>
@@ -573,6 +695,7 @@ const renderGraph = () => {
      {graphType === "totalBookings" && "totalEquipment" && renderTable()}
      </div>
   );
+  
 };
 
 export default ReportVenues;

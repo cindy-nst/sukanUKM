@@ -268,7 +268,8 @@ const BookCourtDate = () => {
               type="date"
               value={selectedDate}
               onChange={handleDateChange}
-              min={new Date().toISOString().split("T")[0]} // Restrict to current and future dates
+              //min={new Date().toISOString().split("T")[0]} // Restrict to current and future dates
+              min={new Date().toLocaleDateString('en-CA')} // Restrict to current and future dates
             />
             {formattedDate && (
               <p>

@@ -135,7 +135,7 @@ const BookEquipmentDateTime = () => {
               type="date"
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              min={new Date().toISOString().split("T")[0]} // Restrict to current and future dates
+              min={new Date().toLocaleDateString('en-CA')} // Restrict to current and future dates
             />
 
             <h3>
@@ -149,7 +149,7 @@ const BookEquipmentDateTime = () => {
                 type="date"
                 value={selectedReturnDate}
                 onChange={handleReturnDateChange}
-                min={new Date().toISOString().split("T")[0]} // Restrict to current and future dates
+                min={new Date().toLocaleDateString('en-CA')} // Restrict to current and future dates
               />
             ) : (
               <p className="time-message">Please select a date before choosing a return date.</p>
