@@ -56,8 +56,11 @@ const BookingHistoryDetail = () => {
   
         {/* Booking Details Section */}
         <div className="my-cart1">
-          <h2>Booking Details</h2>
+          <h2>BOOKING ID: {bookingDetail.BookingCourtID || "Loading..."}</h2>
           <div className="divider1"></div>
+
+ 
+
   
           {/* Venue Section */}
           <div className="cart-content1">
@@ -92,11 +95,6 @@ const BookingHistoryDetail = () => {
           </div>
   
           <div className="divider2"></div>
-  
-          {/* Booking ID Section */}
-          <div className="text-box">
-            <strong>BOOKING ID:</strong> {bookingDetail.BookingCourtID || "Loading..."}
-          </div>
         </div>
   
         <br />
