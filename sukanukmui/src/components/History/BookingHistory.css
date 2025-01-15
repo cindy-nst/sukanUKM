@@ -84,7 +84,11 @@
 }
 
 .booking-image {
-    height: 200px;
+    height: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     overflow: hidden;
 }
 
@@ -109,6 +113,14 @@
     font-size: 0.9rem;
     margin-bottom: 10px;
 }
+
+/* Container for aligning the buttons */
+.button-container {
+    display: flex;
+    justify-content: space-between; /* Distribute buttons evenly */
+    gap: 10px; /* Add space between buttons */
+    margin-top: 12px;
+  }
 
 /* View Button Styles */
 .view-button {
