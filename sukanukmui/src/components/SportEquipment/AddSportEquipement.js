@@ -12,8 +12,8 @@ const AddSportEquipment = () => {
   const [SportPic, setSportPic] = useState(null);
   const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
-  const [isSuccessful, setIsSuccessful] = useState(false); // Track if submission was successful
 
+  // Handle image file change
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -26,19 +26,13 @@ const AddSportEquipment = () => {
     }
   };
 
+  // Clear image preview
   const handleClearImage = () => {
     setImagePreview(null);
     setSportPic(null);
   };
 
-  const handleModalClose = () => {
-    setIsMessageModalOpen(false);
-    setModalMessage("");
-    if (isSuccessful) {
-      navigate("/sportequipment"); // Navigate only if the submission was successful
-    }
-  };
-
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -65,20 +59,24 @@ const AddSportEquipment = () => {
 
       const result = await response.json();
       if (response.ok) {
-        setModalMessage(result.message);
-        setIsSuccessful(true); // Mark submission as successful
+        setModalMessage(result.message || "Equipment added successfully!");
         setIsMessageModalOpen(true);
+        //navigate("/sportequipment"); // Redirect after showing the success modal
       } else {
         setModalMessage(result.message || "Failed to add equipment");
-        setIsSuccessful(false); // Mark submission as unsuccessful
         setIsMessageModalOpen(true);
       }
     } catch (error) {
       console.error("Error:", error);
       setModalMessage("An error occurred while adding the equipment");
-      setIsSuccessful(false); // Mark submission as unsuccessful
       setIsMessageModalOpen(true);
     }
+  };
+
+  // Modal close handler
+  const handleModalClose = () => {
+    setIsMessageModalOpen(false);
+    navigate("/sportequipment"); // Redirect after showing the success modal
   };
 
   return (
@@ -106,6 +104,7 @@ const AddSportEquipment = () => {
 
       {/* Form */}
       <div className="form-container">
+        {/* Upload Photo */}
         <div className="form-group">
           <label className="form-label" style={{ fontWeight: "bold", color: "black" }}>
             UPLOAD PHOTO
@@ -139,6 +138,7 @@ const AddSportEquipment = () => {
           </div>
         </div>
 
+        {/* Equipment ID */}
         <div className="form-group">
           <label className="form-label" style={{ fontWeight: "bold", color: "black" }}>
             EQUIPMENT ID
@@ -152,6 +152,7 @@ const AddSportEquipment = () => {
           />
         </div>
 
+        {/* Equipment Name */}
         <div className="form-group">
           <label className="form-label" style={{ fontWeight: "bold", color: "black" }}>
             NAME
@@ -165,6 +166,7 @@ const AddSportEquipment = () => {
           />
         </div>
 
+        {/* Quantity */}
         <div className="form-group">
           <label className="form-label" style={{ fontWeight: "bold", color: "black" }}>
             QUANTITY
