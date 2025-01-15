@@ -95,7 +95,7 @@ const ReportEquipment = () => {
   // Helper function to get the filtered bookings
   const getFilteredBookings = () => {
     return bookings.filter((booking) => {
-      const bookingDate = new Date(booking.BookingDate);
+      const bookingDate = new Date(booking.BookingItemDate);
       return (
         bookingDate.getFullYear() === selectedYear &&
         bookingDate.getMonth() + 1 === selectedMonth
@@ -120,7 +120,7 @@ const getFilteredBookingsByEquipment = () => {
 
         // Extract unique booking dates and sum the quantities of equipment booked for each date
       const dateCounts = filteredBookingsByEquipment.reduce((acc, booking) => {
-      const bookingDate = booking.BookingDate;
+      const bookingDate = booking.BookingItemDate;
       acc[bookingDate] = (acc[bookingDate] || 0) + booking.BookingItemQuantity;
       return acc;
     }, {});
@@ -163,13 +163,13 @@ const getFilteredBookingsByEquipment = () => {
   const dailyCounts = {};
 
   filteredBookings.forEach((booking) => {
-    const formattedDate = formatDate(booking.BookingDate);
+    const formattedDate = formatDate(booking.BookingItemDate);
     dailyCounts[formattedDate] = (dailyCounts[formattedDate] || 0) + 1;
   });
 
   // Count the number of bookings for each date
   filteredBookings.forEach((booking) => {
-    const formattedDate = formatDate(booking.BookingDate);
+    const formattedDate = formatDate(booking.BookingItemDate);
     dailyCounts[formattedDate] = (dailyCounts[formattedDate] || 0) ;
   });
 
@@ -228,6 +228,12 @@ const barData = {
       backgroundColor: ["#ff595e", "#ffca3a", "#8ac926", "#1982c4", "#6a4c93"],
     },
   ],
+};
+
+const getBookedEquipmentCount = () => {
+  const filteredBookings = getFilteredBookings();
+  const uniqueVenues = new Set(filteredBookings.map((booking) => booking.ItemName));
+  return uniqueVenues.size; // Return the number of unique venues
 };
 
 //Line Options
@@ -472,7 +478,7 @@ const barData = {
   // Function to sort filtered bookings
   const getSortedBookings = () => {
     const filteredBookings = getFilteredBookings();
-    return filteredBookings.sort((a, b) => new Date(a.BookingDate) - new Date(b.BookingDate));
+    return filteredBookings.sort((a, b) => new Date(a.BookingItemDate) - new Date(b.BookingItemDate));
   };
 
   // Table rendering
@@ -557,7 +563,7 @@ const barData = {
         </div>
         <div className="card orange" onClick={() => setGraphType("totalEquipment")}>
           <h2>TOTAL EQUIPMENT</h2>
-          <p>{equipmentNames.length}</p>
+          <p>{getBookedEquipmentCount()}</p>
         </div>
         <div className="card red" onClick={() => setGraphType("upcomingReturns")}>
           <h2>UPCOMING RETURNS</h2>
