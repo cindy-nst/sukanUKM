@@ -78,7 +78,11 @@
     padding: 50px;
     text-align: center;
     background-color: #f9f9f9;
-    margin-bottom: 20px;
+    margin: 0 auto 20px;
+    width: 200px;
+    height: 200px;
+    align-items: center;
+    justify-content: center;
   }
   
   .upload-content {
@@ -98,6 +102,9 @@
     border-radius: 4px;
     background-color: #fff;
     transition: background-color 0.3s ease, color 0.3s ease;
+    white-space: nowrap;
+    text-align: center;
+    display: inline-block;
   }
   
   .upload-label:hover {
@@ -111,10 +118,12 @@
   
   .image-preview {
     max-width: 100%;
-    height: auto;
+    height: 100%;
     border: 1px solid #ccc;
     border-radius: 4px;
     margin-bottom: 10px;
+    object-fit: cover;
+    border-radius: 4px;
   }
   
   .preview-controls {
