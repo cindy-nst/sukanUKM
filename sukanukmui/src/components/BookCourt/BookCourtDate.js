@@ -264,7 +264,12 @@ const BookCourtDate = () => {
             <h3>
               <span className="number-circle">1</span> Select a date
             </h3>
-            <input type="date" value={selectedDate} onChange={handleDateChange} />
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={handleDateChange}
+              min={new Date().toISOString().split("T")[0]} // Restrict to current and future dates
+            />
             {formattedDate && (
               <p>
                 <strong>Selected Date:</strong> {formattedDate}
