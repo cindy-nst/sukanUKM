@@ -50,6 +50,8 @@ const ReportVenues = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Months are 1-indexed
 
   // Fetch bookings data from API
     useEffect(() => {
@@ -89,34 +91,13 @@ const ReportVenues = () => {
 
   // Helper function to get the filtered bookings
   const getFilteredBookings = () => {
-    const today = new Date();
-    const filteredBookings = bookings.filter((booking) => {
+    return bookings.filter((booking) => {
       const bookingDate = new Date(booking.BookingDate);
-      if (timeFilter === "last week") {
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(today.getDate() - 7); // Start of the last week
-        return bookingDate >= oneWeekAgo && bookingDate <= today;
-      }
-      else if (timeFilter === "last month") {
-        const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1); // First day of last month
-        const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0); // Last day of last month
-        return bookingDate >= startOfLastMonth && bookingDate <= endOfLastMonth;
-      } 
-      else if (timeFilter === "this month") {
-        const startOfThisMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of this month
-        const endOfThisMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of this month
-        return bookingDate >= startOfThisMonth && bookingDate <= endOfThisMonth;
-      } 
-      else if (timeFilter === "this week") {
-        const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()); // Normalize to midnight
-        const sevenDaysLater = new Date(startOfToday);
-        sevenDaysLater.setDate(startOfToday.getDate() + 7); // 7 days after today
-  
-  return bookingDate >= startOfToday && bookingDate < sevenDaysLater;
-      } 
-      return true; // Default: return all bookings
+      return (
+        bookingDate.getFullYear() === selectedYear &&
+        bookingDate.getMonth() + 1 === selectedMonth
+      );
     });
-    return filteredBookings;
   };
 
     // Helper function to get filtered upcoming returns
@@ -535,21 +516,37 @@ const renderGraph = () => {
       {/* Filter Section */}
       {graphType !== "upcomingReturns" && (
       <div className="filter-section">
-       <label htmlFor="time-filter" className="filter-label">Filter by:</label>
-       <div className="filter-dropdown">
-    <select
-      id="time-filter"
-      value={timeFilter}
-      onChange={(e) => setTimeFilter(e.target.value)}
-      className="filter-select"
-    >
-      <option value="last week">Last Week</option>
-      <option value="this week">This Week</option>
-      <option value="last month">Last Month</option>
-      <option value="this month">This Month</option>
-    </select>
-  </div>
-  </div>
+      <label htmlFor="year-filter" className="filter-label">Select Year:</label>
+      <div className="filter-dropdown">
+        <select
+          id="year-filter"
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+          className="filter-select"
+        >
+          {Array.from({ length: 2 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
+      </div>
+      <label htmlFor="month-filter" className="filter-label">Select Month:</label>
+      <div className="filter-dropdown">
+        <select
+          id="month-filter"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+          className="filter-select"
+        >
+          {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+            <option key={month} value={month}>
+              {new Date(0, month - 1).toLocaleString("default", { month: "long" })}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
       )}
       {/* Cards */}
       <div className="main-cards">

@@ -45,10 +45,14 @@ const ReportEquipment = () => {
   };
 
   const [graphType, setGraphType] = useState("totalBookings");
+  const [selectedEquipment, setSelectedEquipment] = useState("All Equipments");
   const [timeFilter, setTimeFilter] = useState("this week");
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Months are 1-indexed
+  
 
   // Fetch bookings data from API
   useEffect(() => {
@@ -90,35 +94,56 @@ const ReportEquipment = () => {
 
   // Helper function to get the filtered bookings
   const getFilteredBookings = () => {
-    const today = new Date();
-    const filteredBookings = bookings.filter((booking) => {
+    return bookings.filter((booking) => {
       const bookingDate = new Date(booking.BookingDate);
-      if (timeFilter === "last week") {
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(today.getDate() - 7); // Start of the last week
-        return bookingDate >= oneWeekAgo && bookingDate <= today;
-      }
-      else if (timeFilter === "last month") {
-        const startOfLastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1); // First day of last month
-        const endOfLastMonth = new Date(today.getFullYear(), today.getMonth(), 0); // Last day of last month
-        return bookingDate >= startOfLastMonth && bookingDate <= endOfLastMonth;
-      } 
-      else if (timeFilter === "this month") {
-        const startOfThisMonth = new Date(today.getFullYear(), today.getMonth(), 1); // First day of this month
-        const endOfThisMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0); // Last day of this month
-        return bookingDate >= startOfThisMonth && bookingDate <= endOfThisMonth;
-      } 
-      else if (timeFilter === "this week") {
-        const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate()); // Normalize to midnight
-        const sevenDaysLater = new Date(startOfToday);
-        sevenDaysLater.setDate(startOfToday.getDate() + 7); // 7 days after today
-  
-  return bookingDate >= startOfToday && bookingDate < sevenDaysLater;
-      } 
-      return true; // Default: return all bookings
+      return (
+        bookingDate.getFullYear() === selectedYear &&
+        bookingDate.getMonth() + 1 === selectedMonth
+      );
     });
-    return filteredBookings;
   };
+  
+    // Helper function to filter bookings by selected equipment
+  const equipments = ["All Equipments", ...new Set(bookings.map((booking) => booking.ItemName))];
+
+const getFilteredBookingsByEquipment = () => {
+  const timeFilteredBookings = getFilteredBookings();
+  if (selectedEquipment === "All Equipments") {
+    return timeFilteredBookings;
+  }
+  return timeFilteredBookings.filter((booking) => booking.ItemName === selectedEquipment);
+};
+
+  // Generate Line Graph Data
+  const generateLineGraphData = () => {
+    const filteredBookingsByEquipment = getFilteredBookingsByEquipment();
+
+        // Extract unique booking dates and sum the quantities of equipment booked for each date
+      const dateCounts = filteredBookingsByEquipment.reduce((acc, booking) => {
+      const bookingDate = booking.BookingDate;
+      acc[bookingDate] = (acc[bookingDate] || 0) + booking.BookingItemQuantity;
+      return acc;
+    }, {});
+
+  // Prepare labels and data for the line graph
+     const labels = Object.keys(dateCounts).sort((a, b) => new Date(a) - new Date(b)); // Dates in order
+     const data = labels.map((date) => dateCounts[date]);
+
+    return {
+      labels,
+      datasets: [
+        {
+        label: `Quantity of ${selectedEquipment} Booked`,
+        data,
+        backgroundColor: "rgba(78, 115, 223, 0.6)",
+        borderColor: "#4E7CFF",
+        borderWidth: 2,
+        },
+       ],
+     };
+    };
+    
+      const lineGraphData = generateLineGraphData();
 
     // Helper function to get filtered upcoming returns
   const getFilteredUpcomingReturns = () => {
@@ -313,6 +338,51 @@ const barData = {
     },
   };
 
+  const lineGraphOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        grid:{
+          display:false
+        },
+        title: {
+          display: true,
+          text: "Booking Date",
+          font: {
+            size: 14,
+          },
+        },
+      },
+      y: {
+        title: {
+          display: true,
+          text: "Quantity of Equipment",
+          font: {
+            size: 14,
+          },
+        },
+        ticks: {
+          stepSize: 1, // Increment by 1
+          callback: function (value) {
+            return Math.round(value); // Ensure all ticks are rounded
+          },
+        },
+        beginAtZero: true, // Ensure the y-axis starts at 0
+        suggestedMax: function (ctx) {
+          // Dynamically calculate the max scale value
+          const maxValue = Math.max(...ctx.chart.data.datasets[0].data) || 0;
+          return maxValue + 1;
+        },
+      },
+    },
+    plugins: {
+      datalabels: {
+        display: false,
+      },
+    },
+  };
+
   const renderUpcomingReturnsTable = () => {
     const upcomingReturns = getFilteredUpcomingReturns();
     return (
@@ -364,9 +434,33 @@ const barData = {
         );
       case "totalEquipment":
         return (
-          <div className="chart-container">
+          <div className="side-by-side-charts">
+        <div className="chart-container">
           <Bar data={barData} options={barOptions} />
+        </div>
+        <div className="chart-container1">
+          <div className="filter-section1">
+            <label htmlFor="equipment-filter" className="filter-label1">Select Equipment:</label>
+            <div className="filter-dropdown">
+              <select
+                id="equipment-filter"
+                value={selectedEquipment}
+                onChange={(e) => setSelectedEquipment(e.target.value)}
+                className="filter-select1"
+              >
+                {equipments.map((equipment) => (
+                  <option key={equipment} value={equipment}>
+                    {equipment}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+          <div className="line-chart-container">
+          <Line data={lineGraphData} options={lineGraphOptions} />
+          </div>
+        </div>
+      </div>
         );
       case "upcomingReturns":
         return renderUpcomingReturnsTable();
@@ -422,21 +516,38 @@ const barData = {
       {/* Filter Section */}
       {graphType !== "upcomingReturns" && (
       <div className="filter-section">
-       <label htmlFor="time-filter" className="filter-label">Filter by:</label>
-       <div className="filter-dropdown">
-    <select
-      id="time-filter"
-      value={timeFilter}
-      onChange={(e) => setTimeFilter(e.target.value)}
-      className="filter-select"
-    >
-      <option value="last week">Last Week</option>
-      <option value="this week">This Week</option>
-      <option value="last month">Last Month</option>
-      <option value="this month">This Month</option>
-    </select>
-  </div>
-  </div>
+      <label htmlFor="year-filter" className="filter-label">Select Year:</label>
+      <div className="filter-dropdown">
+        <select
+          id="year-filter"
+          value={selectedYear}
+          onChange={(e) => setSelectedYear(parseInt(e.target.value))}
+          className="filter-select"
+        >
+          {Array.from({ length: 2 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+            <option key={year} value={year}>
+              {year}
+            </option>
+          ))}
+        </select>
+      </div>
+      <label htmlFor="month-filter" className="filter-label">Select Month:</label>
+      <div className="filter-dropdown">
+        <select
+          id="month-filter"
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
+          className="filter-select"
+        >
+          {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+            <option key={month} value={month}>
+              {new Date(0, month - 1).toLocaleString("default", { month: "long" })}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+    
       )}
       {/* Cards */}
       <div className="main-cards">

@@ -30,6 +30,32 @@
   position: relative;
   display: inline-block;
 }
+.filter-section1 {
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: Arial, sans-serif;
+}
+
+.filter-label1 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.filter-select1 {
+  appearance: none; /* Removes default browser styles */
+  border: 2px solid #4E7CFF;
+  border-radius: 8px;
+  padding: 6px 30px 6px 12px; /* Add padding-right for space */
+  font-size: 14px;
+  color: #333;
+  background-color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
 .filter-select {
   appearance: none; /* Removes default browser styles */
@@ -120,6 +146,26 @@
   justify-content: center;
   overflow: hidden; /* Prevent overflowing elements */
   margin-top: 2%;
+}
+
+.chart-container1 { 
+  background-color: #FFFFFF;
+  padding: 1%;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 20px; /* Adds space between filter and chart */
+  height: 400px; /* Let the height adjust dynamically */
+  overflow: hidden;
+  margin-top: 2%;
+}
+
+.line-chart-container {
+  width: 100%;
+  height: 80%; /* Adjusts dynamically based on container */
 }
 
 /* Sorted Table */
