@@ -186,20 +186,20 @@ const BookingHistory = () => {
       </div>
 
       {isConfirmationModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="modal-overlay-bh">
+          <div className="modal-content-bh">
             <h2>Confirm Cancellation</h2>
             <p>Are you sure you want to cancel this booking?</p>
-            <div className="modal-buttons">
+            <div className="modal-buttons-bh">
               <button
                 onClick={handleCancelBooking}
-                className="confirm-button"
+                className="confirm-button-bh"
               >
                 Confirm
               </button>
               <button
                 onClick={() => setIsConfirmationModalOpen(false)}
-                className="close-modal-button"
+                className="close-modal-button-bh"
               >
                 Close
               </button>
@@ -209,14 +209,14 @@ const BookingHistory = () => {
       )}
 
       {isSuccessModalOpen && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="modal-overlay-bh">
+          <div className="modal-content-bh">
             <h2>Success</h2>
             <p>{modalMessage}</p>
-            <div className="modal-buttons">
+            <div className="modal-buttons-bh">
               <button
                 onClick={() => setIsSuccessModalOpen(false)}
-                className="okay-button"
+                className="okay-button-bh"
               >
                 Okay
               </button>

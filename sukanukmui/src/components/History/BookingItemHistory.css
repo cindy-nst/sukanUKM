@@ -198,7 +198,7 @@
         font-size: 13px;
     }
 }
-.modal-overlay {
+.modal-overlay-bih {
   position: fixed;
   top: 0;
   left: 0;
@@ -211,7 +211,7 @@
   z-index: 1000;
 }
 
-.modal-content {
+.modal-content-bih {
   background: white;
   padding: 20px;
   border-radius: 8px;
@@ -220,14 +220,14 @@
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.modal-buttons {
+.modal-buttons-bih {
   display: flex;
   justify-content: space-between;
   gap: 20px; /* Space between buttons */
   margin-top: 20px;
 }
 
-.modal-buttons button {
+.modal-buttons-bih button {
   flex: 1; /* Equal width for both buttons */
   padding: 10px 20px;
   font-size: 16px;
@@ -237,21 +237,21 @@
   text-align: center;
 }
 
-.confirm-button {
+.confirm-button-bih {
   background-color: #ff4d4d;
   color: white;
 }
 
-.cancel-button-booking {
+.cancel-button-booking-bih {
   background-color: #adb5bd;
   color: white;
 }
 
-.modal-buttons button:hover {
+.modal-buttons-bih button:hover {
   opacity: 0.9; /* Slight transparency effect on hover */
 }
 
-.okay-button {
+.okay-button-bih {
     background-color: blue;
     color: white;
     padding: 10px 20px;
@@ -261,7 +261,7 @@
     border-radius: 5px;
   }
   
-  .okay-button:hover {
+  .okay-button-bih:hover {
     background-color: darkblue;
   }
   

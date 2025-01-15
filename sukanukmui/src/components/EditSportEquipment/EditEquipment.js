@@ -15,6 +15,8 @@ const EditEquipment = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [imageFile, setImageFile] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
   useEffect(() => {
     const fetchEquipment = async () => {
@@ -25,9 +27,9 @@ const EditEquipment = () => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
-        
+
         const data = await response.json();
-        
+
         setEquipment({
           ItemName: data.ItemName || '',
           ItemID: data.ItemID || '',
@@ -57,59 +59,60 @@ const EditEquipment = () => {
     }));
   };
 
-// Modify the handleImageUpload function
-const handleImageUpload = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
-  }
-};
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const formData = new FormData();
-
-    // Add the regular equipment data
-    formData.append('ItemName', equipment.ItemName);
-    formData.append('ItemQuantity', equipment.ItemQuantity);
-
-    // If there's a new image file, append it
-    if (imageFile) {
-      formData.append('sportImage', imageFile);
+  const handleImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
     }
+  };
 
-    console.log('Submitting update for ItemID:', ItemID);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const formData = new FormData();
 
-    const response = await fetch(`http://localhost:5000/api/sportequipment/${ItemID}`, {
-      method: 'PUT',
-      // Remove the Content-Type header - it will be automatically set for FormData
-      body: formData
-    });
+      // Add the regular equipment data
+      formData.append('ItemName', equipment.ItemName);
+      formData.append('ItemQuantity', equipment.ItemQuantity);
 
-    if (!response.ok) {
-      throw new Error('Failed to update equipment');
+      // If there's a new image file, append it
+      if (imageFile) {
+        formData.append('sportImage', imageFile);
+      }
+
+      console.log('Submitting update for ItemID:', ItemID);
+
+      const response = await fetch(`http://localhost:5000/api/sportequipment/${ItemID}`, {
+        method: 'PUT',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update equipment');
+      }
+
+      const data = await response.json();
+      console.log('Success:', data);
+      setModalMessage('Equipment updated successfully!');
+      setShowModal(true);
+
+    } catch (error) {
+      console.error('Error updating equipment:', error);
+      setModalMessage(`Error: ${error.message}`);
+      setShowModal(true);
     }
-
-    const data = await response.json();
-    console.log('Success:', data);
-    alert('Equipment updated successfully!');
-
-  } catch (error) {
-    console.error('Error updating equipment:', error);
-    setError(error.message);
-  }
-};
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
+
   return (
     <div className="edit-equipment-container">
       <div className="edit-equipment-banner">
         <h1>Edit Equipment</h1>
       </div>
-      
+
       <div className="edit-equipment-form-container">
         <form onSubmit={handleSubmit} className="edit-equipment-form">
           <div className="editequipmentimage-upload-section">
@@ -185,6 +188,17 @@ const handleSubmit = async (e) => {
           </div>
         </form>
       </div>
+
+      {showModal && (
+        <div className="modal-backdrop-ee">
+          <div className="modal-ee">
+            <p>{modalMessage}</p>
+            <button onClick={() => setShowModal(false)} className="close-button-ee">
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
