@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './EditEquipment.css';
 
 const EditEquipment = () => {
+  const navigate = useNavigate();
   const { ItemID } = useParams();
   console.log('Current ItemID from params:', ItemID);
   const [equipment, setEquipment] = useState({
@@ -17,6 +18,12 @@ const EditEquipment = () => {
   const [imageFile, setImageFile] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
+  const handleModalClose = () => {
+    setShowModal(false);
+    if (modalMessage === "Equipment updated successfully!") {
+      navigate(`/equipment/details/${ItemID}`);
+    }
+  };
 
   useEffect(() => {
     const fetchEquipment = async () => {
@@ -196,8 +203,8 @@ const EditEquipment = () => {
         <div className="modal-backdrop-ee">
           <div className="modal-ee">
             <p>{modalMessage}</p>
-            <button onClick={() => setShowModal(false)} className="close-button-ee">
-              Ok
+            <button onClick={handleModalClose} className="close-button-ee">
+              OK
             </button>
           </div>
         </div>
