@@ -8,6 +8,16 @@ const EquipmentDetails = () => {
   const [equipment, setEquipment] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // Modal state
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+  const handlesetIsSuccessModalClose = () => {
+    setIsSuccessModalOpen(false);
+    if (modalMessage === "Equipment deleted successfully!") {
+      navigate('/sportequipment'); // Navigate back to equipment list after deletion
+    }
+  };
 
   useEffect(() => {
     const fetchEquipment = async () => {
@@ -33,21 +43,21 @@ const EquipmentDetails = () => {
   };
 
   const handleDelete = async () => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this equipment?');
-    if (confirmDelete) {
-      try {
-        const response = await fetch(`http://localhost:5000/api/sportequipment/${ItemID}`, {
-          method: 'DELETE',
-        });
-        if (!response.ok) {
-          throw new Error('Failed to delete equipment');
-        }
-        alert('Equipment deleted successfully!');
-        navigate('/sportequipment'); // Navigate back to equipment list after deletion
-      } catch (error) {
-        console.error('Error deleting equipment:', error);
-        alert('Failed to delete equipment. Please try again.');
+    try {
+      const response = await fetch(`http://localhost:5000/api/sportequipment/${ItemID}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        throw new Error('Failed to delete equipment');
       }
+      setModalMessage('Equipment deleted successfully!');
+      setIsSuccessModalOpen(true);
+    } catch (error) {
+      console.error('Error deleting equipment:', error);
+      setModalMessage("An error occurred while deleting the equipment.");
+      setIsSuccessModalOpen(true);
+    } finally {
+      setIsConfirmationModalOpen(false);
     }
   };
 
@@ -84,8 +94,47 @@ const EquipmentDetails = () => {
       {/* Action Buttons */}
       <div className="equipment-actions">
         <button className="edit-button" onClick={handleEdit}>Edit</button>
-        <button className="delete-button" onClick={handleDelete}>Delete</button>
+        <button className="delete-button" onClick={() => {setIsConfirmationModalOpen(true);}}>Delete</button>
       </div>
+      {isConfirmationModalOpen && (
+        <div className="modal-overlay-bh">
+          <div className="modal-content-bh">
+            <h2>Confirm Deletion</h2>
+            <p>Are you sure you want to delete this equipment?</p>
+            <div className="modal-buttons-bh">
+              <button
+                onClick={handleDelete}
+                className="confirm-button-bh"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => setIsConfirmationModalOpen(false)}
+                className="close-modal-button-bh"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isSuccessModalOpen && (
+        <div className="modal-overlay-bh">
+          <div className="modal-content-bh">
+            <h2>Success</h2>
+            <p>{modalMessage}</p>
+            <div className="modal-buttons-bh">
+              <button
+                onClick={handlesetIsSuccessModalClose}
+                className="okay-button-bh"
+              >
+                Okay
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

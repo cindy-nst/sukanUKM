@@ -218,7 +218,7 @@ const CourtDetail = () => {
       {isConfirmationModalOpen && (
         <div className="modal-overlay-bh">
           <div className="modal-content-bh">
-            <h2>Confirm Cancellation</h2>
+            <h2>Confirm Deletion</h2>
             <p>Are you sure you want to delete this venue?</p>
             <div className="modal-buttons-bh">
               <button
