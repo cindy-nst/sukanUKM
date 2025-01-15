@@ -213,18 +213,16 @@ const EditVenue = () => {
           </div>
         </div>
 
-        <button className="form-submit" onClick={handleSave}>Save</button>
+        <div className="court-actions">
+          <button onClick={() => window.history.back()} className="back-button">
+              Back
+            </button>
+            <button className="save-button" onClick={handleSave}>
+              Save
+            </button>
+          </div>
 
-        
 
-        <div class="center-back-button">
-        <button
-          className="back-button"
-          onClick={() => window.history.back()} // Navigate back in browser history
-        >
-          Back
-        </button>
-        </div>
       </div>
 
       {/* Modal with Map */}
@@ -242,7 +240,7 @@ const EditVenue = () => {
           <div className="modal-ee">
             <p>{modalMessage}</p>
             <button onClick={handleModalClose} className="close-button-ee">
-              Close
+              Ok
             </button>
           </div>
         </div>

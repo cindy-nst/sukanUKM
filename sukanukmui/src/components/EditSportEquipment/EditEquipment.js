@@ -115,12 +115,6 @@ const EditEquipment = () => {
 
       <div className="edit-equipment-form-container">
         <form onSubmit={handleSubmit} className="edit-equipment-form">
-        <button
-          className="back-button"
-          onClick={() => window.history.back()} // Navigate back in browser history
-        >
-          Back
-        </button>
           <div className="editequipmentimage-upload-section">
             <div className="editequipmentimage-preview">
               {imagePreview && (
@@ -187,7 +181,10 @@ const EditEquipment = () => {
             />
           </div>
 
-          <div className="form-actions">
+          <div className="court-actions">
+          <button onClick={() => window.history.back()} className="back-button">
+              Back
+            </button>
             <button type="submit" className="save-button">
               Save
             </button>
@@ -200,7 +197,7 @@ const EditEquipment = () => {
           <div className="modal-ee">
             <p>{modalMessage}</p>
             <button onClick={() => setShowModal(false)} className="close-button-ee">
-              Close
+              Ok
             </button>
           </div>
         </div>
