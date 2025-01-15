@@ -115,6 +115,12 @@ const EditEquipment = () => {
 
       <div className="edit-equipment-form-container">
         <form onSubmit={handleSubmit} className="edit-equipment-form">
+        <button
+          className="back-button"
+          onClick={() => window.history.back()} // Navigate back in browser history
+        >
+          Back
+        </button>
           <div className="editequipmentimage-upload-section">
             <div className="editequipmentimage-preview">
               {imagePreview && (

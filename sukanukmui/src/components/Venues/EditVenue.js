@@ -214,6 +214,17 @@ const EditVenue = () => {
         </div>
 
         <button className="form-submit" onClick={handleSave}>Save</button>
+
+        
+
+        <div class="center-back-button">
+        <button
+          className="back-button"
+          onClick={() => window.history.back()} // Navigate back in browser history
+        >
+          Back
+        </button>
+        </div>
       </div>
 
       {/* Modal with Map */}

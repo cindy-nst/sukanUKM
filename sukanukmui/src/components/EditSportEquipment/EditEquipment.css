@@ -22,6 +22,28 @@
   margin: 0 auto;
 }
 
+/* Centered Back Button */
+.center-back-button {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.back-button {
+  background-color: transparent;
+  color: #808080;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.back-button:hover {
+  background-color: #808080;
+  color: #FFFFFF;
+}
+
 
 .editequipmentimage-upload-section {
   display: flex;
