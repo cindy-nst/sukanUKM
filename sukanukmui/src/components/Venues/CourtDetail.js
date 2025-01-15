@@ -146,7 +146,7 @@ const CourtDetail = () => {
 
       {/* Court Details Container */}
       <div className="form-container">
-        <div className="form-group">
+        <div className="form-column">
           <label className="form-label">NAME</label>
           <p>{court.CourtName}</p>
         </div>
