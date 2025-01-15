@@ -669,15 +669,44 @@ app.post('/api/addBookingCourt', async (req, res) => {
   }
 });
 
+const moment = require('moment');
+
+// Function to generate hourly intervals, taking into account the crossing of midnight
+const generateHourlyIntervals = (startTime, endTime) => {
+  let intervals = [];
+  
+  // Check if end time is "12:00 AM", which means it's the next day
+  if (endTime === "12:00 AM") {
+    // Set the end time to "12:00 AM" of the next day
+    endTime = "12:00 AM";  // You may also consider using moment().add(1, 'days') for the next day
+  }
+  
+  let currentTime = moment(startTime, 'hh:mm A');
+  const end = moment(endTime, 'hh:mm A');
+  
+  // If the start time is PM and the end time is AM, we might need to add the next day's date
+  if (currentTime.isAfter(end)) {
+    end.add(1, 'days');  // Adjust the end time to be the next day
+  }
+  
+  // Generate hourly intervals
+  while (currentTime.isBefore(end)) {
+    let nextTime = currentTime.clone().add(1, 'hours');
+    intervals.push(`${currentTime.format('hh:mm A')} - ${nextTime.format('hh:mm A')}`);
+    currentTime = nextTime;
+  }
+  
+  return intervals;
+};
+
 // API to fetch the booked times for the selected date
 app.get('/api/getBookedTimes', async (req, res) => {
   const { courtID, date } = req.query;
   if (!courtID || !date) {
     return res.status(400).json({ message: 'CourtID and date are required.' });
   }
+
   try {
-    // Log the formatted date received from the client
-    console.log("Received Date:", date);
     // Query to fetch all booked times for the selected court and date
     const query = `
       SELECT BookingCourtTime
@@ -685,14 +714,30 @@ app.get('/api/getBookedTimes', async (req, res) => {
       WHERE CourtID = ? AND BookingCourtDate = ?
     `;
     const [rows] = await db.promise().execute(query, [courtID, date]);
+
     // Check if there are booked times
     if (rows.length === 0) {
       return res.status(200).json({ bookedTimes: [] }); // Return an empty array if no bookings exist
     }
-    // Split comma-separated times and flatten them into a single array
-    const bookedTimes = rows
-      .map(row => row.BookingCourtTime.split(',').map(time => time.trim())) // Split by commas and remove extra spaces
-      .flat(); // Flatten into a single array
+
+    let bookedTimes = [];
+
+    // Iterate through each row and generate hourly intervals
+    rows.forEach(row => {
+      const times = row.BookingCourtTime.split(',').map(time => time.trim());
+
+      // For each time range (e.g., "07:00 PM - 09:00 PM")
+      times.forEach(time => {
+        const [startTime, endTime] = time.split(' - ');
+
+        // Generate hourly intervals between startTime and endTime
+        const intervals = generateHourlyIntervals(startTime, endTime);
+
+        // Merge with existing booked times, ensuring uniqueness
+        bookedTimes = [...new Set([...bookedTimes, ...intervals])];
+      });
+    });
+
     // Return the booked times as a JSON response
     res.status(200).json({ bookedTimes });
   } catch (err) {
@@ -700,6 +745,7 @@ app.get('/api/getBookedTimes', async (req, res) => {
     res.status(500).json({ message: 'Error fetching booked times', error: err });
   }
 });
+
 
 // API fetch booking details by BookingID
 app.get('/api/booking/:BookingID', async (req, res) => { // Accepts :BookingID in the URL
