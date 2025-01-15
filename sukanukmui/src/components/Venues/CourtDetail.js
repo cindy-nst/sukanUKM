@@ -12,6 +12,10 @@ const CourtDetail = () => {
   const [isMapOpen, setIsMapOpen] = useState(false);
   const [locationName, setLocationName] = useState(null);
   const [error, setError] = useState(null);
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+
   useEffect(() => {
     fetch(`http://localhost:5000/api/courts/${id}`)
       .then((response) => {
@@ -84,6 +88,12 @@ const CourtDetail = () => {
   const handleCloseMap = () => {
     setIsMapOpen(false);
   };
+  const handlesetIsSuccessModalClose = () => {
+    setIsSuccessModalOpen(false);
+    if (modalMessage === "Venue deleted successfully.") {
+      navigate("/venues"); // Redirect to the venues page
+    }
+  };
 
   const handleConfirmLocation = (lat, lng) => {
     // Once a location is clicked in MapModal, open Google Maps
@@ -98,8 +108,8 @@ const CourtDetail = () => {
   };
 
   const handleDelete = async () => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this court?");
-    if (!confirmDelete) return;
+    //const confirmDelete = window.confirm("Are you sure you want to delete this court?");
+    //if (!confirmDelete) return;
 
     try {
       const response = await fetch(`http://localhost:5000/api/courts/${id}`, {
@@ -107,15 +117,19 @@ const CourtDetail = () => {
       });
 
       if (response.ok) {
-        alert("Court deleted successfully.");
-        navigate("/venues"); // Redirect to the venues page
+        setModalMessage('Venue deleted successfully.');
+        setIsSuccessModalOpen(true);
       } else {
         const result = await response.json();
-        alert(result.message || "Failed to delete court.");
+        setModalMessage(result.message || "Failed to delete court.");
+        setIsSuccessModalOpen(true);
       }
     } catch (error) {
       console.error("Error deleting court:", error);
-      alert("An error occurred while deleting the court.");
+      setModalMessage("An error occurred while deleting the court.");
+      setIsSuccessModalOpen(true);
+    }  finally {
+      setIsConfirmationModalOpen(false);
     }
   };
 
@@ -185,7 +199,7 @@ const CourtDetail = () => {
           <button onClick={handleEdit} className="edit-btn">
             Edit
           </button>
-          <button onClick={handleDelete} className="delete-btn">
+          <button onClick={() => {setIsConfirmationModalOpen(true);}} className="delete-btn">
             Delete
           </button>
         </div>
@@ -199,6 +213,46 @@ const CourtDetail = () => {
           onClose={handleCloseMap}
           onConfirm={handleConfirmLocation} // Pass onConfirm to get the location on click
         />
+      )}
+
+      {isConfirmationModalOpen && (
+        <div className="modal-overlay-bh">
+          <div className="modal-content-bh">
+            <h2>Confirm Cancellation</h2>
+            <p>Are you sure you want to delete this venue?</p>
+            <div className="modal-buttons-bh">
+              <button
+                onClick={handleDelete}
+                className="confirm-button-bh"
+              >
+                Confirm
+              </button>
+              <button
+                onClick={() => setIsConfirmationModalOpen(false)}
+                className="close-modal-button-bh"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isSuccessModalOpen && (
+        <div className="modal-overlay-bh">
+          <div className="modal-content-bh">
+            <h2>Success</h2>
+            <p>{modalMessage}</p>
+            <div className="modal-buttons-bh">
+              <button
+                onClick={handlesetIsSuccessModalClose}
+                className="okay-button-bh"
+              >
+                Okay
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

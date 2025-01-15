@@ -17,35 +17,46 @@ const EditVenue = () => {
   const [courtName, setCourtName] = useState(""); // State for court name
   const [courtDescription, setCourtDescription] = useState(""); // State for court description
   const [courtData, setCourtData] = useState(null); // State to hold the existing court data
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
   useEffect(() => {
     const fetchCourtData = async () => {
       try {
         const response = await fetch(`http://localhost:5000/api/courts/${CourtID}`);
         const result = await response.json();
-        
+  
         if (response.ok) {
           setCourtData(result);
           setCourtName(result.CourtName);
           setCourtDescription(result.CourtDescription);
-          const location = result.CourtLocation.split(","); // Assuming location is stored as "lat,lng"
+          const location = result.CourtLocation.split(",");
           setSelectedLocation({ lat: parseFloat(location[0]), lng: parseFloat(location[1]) });
           setDirection(`https://www.google.com/maps?q=${location[0]},${location[1]}`);
           setImagePreview(`http://localhost:5000/images/${result.CourtPic}`);
         } else {
-          alert(result.message || "Failed to fetch court data");
+          setModalMessage(result.message || "Failed to fetch court data.");
+          setShowModal(true);
         }
       } catch (error) {
         console.error("Error fetching court data:", error);
-        alert("An error occurred while fetching court data");
+        setModalMessage("An error occurred while fetching court data.");
+        setShowModal(true);
       }
     };
-
+  
     fetchCourtData();
-  }, [CourtID]);
+  }, [CourtID]);  
 
   const handleMapOpen = () => setIsMapOpen(true);
   const handleMapClose = () => setIsMapOpen(false);
+  const handleModalClose = () => {
+    setShowModal(false);
+    if (modalMessage === "Venue updated successfully!") {
+      navigate(`/courts/${CourtID}`);
+    }
+  };
+  
 
   const handleConfirmLocation = (lat, lng) => {
     setSelectedLocation({ lat, lng });
@@ -56,9 +67,9 @@ const EditVenue = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setImagePreview(URL.createObjectURL(file)); // Show preview
+      setImagePreview(URL.createObjectURL(file));
     }
-  };
+  };  
 
   const handleClearImage = () => setImagePreview(null);
 
@@ -84,17 +95,19 @@ const EditVenue = () => {
         body: formData,
       });
       const data = await response.json();
-
+    
       if (response.ok) {
-        alert("Venue updated successfully!");
-        navigate("/venues"); // Redirect to Venue.js
+        setModalMessage("Venue updated successfully!");
+        setShowModal(true);
       } else {
-        alert(data.message || "Failed to update the venue.");
+        setModalMessage(data.message || "Failed to update the venue.");
+        setShowModal(true);
       }
     } catch (error) {
       console.error("Error:", error);
-      alert("An error occurred while saving the venue.");
-    }
+      setModalMessage(`Error: ${error.message}`);
+      setShowModal(true);
+    }    
   };
 
   // Return loading state if courtData is still null
@@ -211,6 +224,17 @@ const EditVenue = () => {
           onClose={handleMapClose}
           onConfirm={(lat, lng) => handleConfirmLocation(lat, lng)}
         />
+      )}
+      
+      {showModal && (
+        <div className="modal-backdrop-ee">
+          <div className="modal-ee">
+            <p>{modalMessage}</p>
+            <button onClick={handleModalClose} className="close-button-ee">
+              Close
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );

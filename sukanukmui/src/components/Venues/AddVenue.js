@@ -1,13 +1,14 @@
-// AddVenue.js
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Import useNavigate
+import { useNavigate } from "react-router-dom";
 import courtbanner from "../../images/court.jpg";
 import "./AddVenue.css";
 import MapModal from "./MapModal"; // Import the MapModal component
 
 const AddVenue = () => {
-  const navigate = useNavigate(); // Initialize useNavigate
-  const [isMapOpen, setIsMapOpen] = useState(false); // Modal state
+  const navigate = useNavigate();
+  const [isMapOpen, setIsMapOpen] = useState(false); // Map modal state
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false); // Message modal state
+  const [modalMessage, setModalMessage] = useState(""); // Message to display in the modal
   const [selectedLocation, setSelectedLocation] = useState({
     lat: null,
     lng: null,
@@ -15,6 +16,9 @@ const AddVenue = () => {
   const [direction, setDirection] = useState(""); // Direction input
   const [imagePreview, setImagePreview] = useState(null); // Image preview state
   const [courtID, setCourtID] = useState(""); // Court ID state
+  const [selectedImage, setSelectedImage] = useState(null); // File input state
+  const [courtName, setCourtName] = useState(""); // State for court name
+  const [courtDescription, setCourtDescription] = useState(""); // State for court description
 
   const handleMapOpen = () => {
     setIsMapOpen(true);
@@ -25,89 +29,77 @@ const AddVenue = () => {
   };
 
   const handleConfirmLocation = (lat, lng) => {
-    // Update the selected location
     setSelectedLocation({ lat, lng });
-
-    // Create a Google Maps link
-    if (lat && lng) {
-      const mapLink = `https://www.google.com/maps?q=${lat},${lng}`;
-      setDirection(mapLink);
-    } else {
-      setDirection(""); // Clear if no location is selected
-    }
-
-    // Close the map modal
+    const mapLink = `https://www.google.com/maps?q=${lat},${lng}`;
+    setDirection(mapLink);
     setIsMapOpen(false);
   };
 
-  const [selectedImage, setSelectedImage] = useState(null);
-
   const handleFileChange = (e) => {
-  const file = e.target.files[0];
-  if (file) {
-    setSelectedImage(file); // Save the file to state
-    const reader = new FileReader();
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
       reader.onload = () => {
-        setImagePreview(reader.result); // Show preview
+        setImagePreview(reader.result);
       };
-    reader.readAsDataURL(file);
+      reader.readAsDataURL(file);
     }
   };
 
-  
   const handleClearImage = () => {
-    setImagePreview(null); // Clear the image preview
+    setImagePreview(null);
   };
 
   const handleCourtIDChange = (e) => {
-    setCourtID(e.target.value); // Update court ID state
+    setCourtID(e.target.value);
   };
-
-  const [courtName, setCourtName] = useState(""); // State for court name
-  const [courtDescription, setCourtDescription] = useState(""); // State for court description
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
-   
-  
+
     const formData = new FormData();
     formData.append("CourtID", courtID);
     formData.append("CourtName", courtName);
     formData.append("CourtDescription", courtDescription);
-    formData.append("latitude", selectedLocation.lat); // Append latitude
-  formData.append("longitude", selectedLocation.lng); // Append longitude
-
-  /// Save the lat,lng string to CourtLocation
-  const locationString = `${selectedLocation.lat},${selectedLocation.lng}`;
-  formData.append("CourtLocation", locationString); // Save lat,lng as string
+    formData.append("latitude", selectedLocation.lat);
+    formData.append("longitude", selectedLocation.lng);
+    formData.append("CourtLocation", `${selectedLocation.lat},${selectedLocation.lng}`);
     if (selectedImage) {
       formData.append("courtImage", selectedImage);
     }
-  
-  
+
     try {
-      const response = await fetch('http://localhost:5000/api/add-court', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/api/add-court", {
+        method: "POST",
         body: formData,
       });
-  
+
       const result = await response.json();
       if (response.ok) {
-        alert(result.message);
-        navigate("/venues");
+        setModalMessage("Venue added successfully!");
+        setIsMessageModalOpen(true);
       } else {
-        alert(result.message || 'Failed to add court');
+        setModalMessage(result.message || "Failed to add court");
+        setIsMessageModalOpen(true);
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('An error occurred while adding the court');
+      console.error("Error:", error);
+      setModalMessage("An error occurred while adding the court");
+      setIsMessageModalOpen(true);
     }
   };
-  
+
+  const handleModalClose = () => {
+    setIsMessageModalOpen(false);
+    if (modalMessage === "Venue added successfully!") {
+      navigate("/venues");
+    }
+  };
 
   return (
-    <div className="add-venue"
+    <div
+      className="add-venue"
       style={{
         width: "100%",
         maxWidth: "800px",
@@ -115,11 +107,12 @@ const AddVenue = () => {
         padding: "20px",
         position: "relative",
         minHeight: "100vh",
-      }}>
+      }}
+    >
       {/* Header Banner */}
       <div
         className="header-banner"
-        style={{ backgroundImage: `url(${courtbanner})`,borderRadius: "8px",}}
+        style={{ backgroundImage: `url(${courtbanner})`, borderRadius: "8px" }}
       >
         <h1 className="heading-1">Add Venue</h1>
       </div>
@@ -133,8 +126,8 @@ const AddVenue = () => {
           <input
             className="form-input"
             type="text"
-            value={courtName} // Bind to courtName state
-            onChange={(e) => setCourtName(e.target.value)} // Update state on change
+            value={courtName}
+            onChange={(e) => setCourtName(e.target.value)}
             placeholder="Enter the venue name"
           />
         </div>
@@ -177,12 +170,12 @@ const AddVenue = () => {
 
           {/* COURT ID and DESCRIPTION */}
           <div className="form-column">
-            <label className="form-label">COURT ID</label> 
+            <label className="form-label">COURT ID</label>
             <input
               className="form-input"
               type="text"
               value={courtID}
-              onChange={handleCourtIDChange} // Handle Court ID change
+              onChange={handleCourtIDChange}
               placeholder="Enter Court ID"
             />
 
@@ -191,8 +184,8 @@ const AddVenue = () => {
             </label>
             <textarea
               className="form-input"
-              value={courtDescription} // Bind to courtDescription state
-              onChange={(e) => setCourtDescription(e.target.value)} // Update state on change
+              value={courtDescription}
+              onChange={(e) => setCourtDescription(e.target.value)}
               placeholder="Enter what sport can be played on the venue"
             ></textarea>
           </div>
@@ -223,17 +216,31 @@ const AddVenue = () => {
           </div>
         </div>
 
-        <button className="form-submit" onClick={handleSubmit}>Submit</button>
+        <button className="form-submit" onClick={handleSubmit}>
+          Submit
+        </button>
       </div>
 
       {/* Modal with Map */}
       {isMapOpen && (
         <MapModal
-          mode="select" // Set mode to select for selecting a new location
+          mode="select"
           initialLocation={selectedLocation}
           onClose={handleMapClose}
-          onConfirm={(lat, lng) => handleConfirmLocation(lat, lng)} // Pass confirm handler
+          onConfirm={(lat, lng) => handleConfirmLocation(lat, lng)}
         />
+      )}
+
+      {/* Message Modal */}
+      {isMessageModalOpen && (
+        <div className="modal-backdrop-ee">
+          <div className="modal-ee">
+            <p>{modalMessage}</p>
+            <button onClick={handleModalClose} className="close-button-ee">
+              Close
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
