@@ -255,7 +255,7 @@ const generatePeakHoursData = () => {
       : filteredBookings.filter((booking) => booking.CourtName === selectedCourt);
 
   // Initialize an object with all hours from 7 AM to 11 PM
-  const hourCounts = Array.from({ length: 15 }, (_, i) => `${i + 7}:00`).reduce(
+  const hourCounts = Array.from({ length: 17 }, (_, i) => `${i + 7}:00`).reduce(
     (acc, hour) => ({ ...acc, [hour]: 0 }),
     {}
   );
